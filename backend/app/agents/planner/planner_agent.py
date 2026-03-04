@@ -775,16 +775,18 @@ def get_planner_agent() -> PlannerAgent:
     """
     global _planner_agent
     if _planner_agent is None:
-        from app.agents.workers import AttractionAgent, HotelAgent, WeatherAgent
+        from app.agents.workers import AttractionAgent, FlightAgent, HotelAgent, WeatherAgent
 
         attraction = AttractionAgent()
         weather = WeatherAgent()
         hotel = HotelAgent()
+        flight = FlightAgent()
         _planner_agent = PlannerAgent(
             workers={
                 "attraction": attraction.as_worker(),
                 "weather": weather.as_worker(),
                 "hotel": hotel.as_worker(),
+                "flight": flight.as_worker(),
             },
         )
     return _planner_agent

@@ -528,11 +528,11 @@ Project1/
 |---|---:|---:|---:|
 | Phase A 基础迁移与脚手架 | 4 | 4 | 100% |
 | Phase B 可插拔工具层 | 5 | 5 | 100% |
-| Phase C 多 Agent 与 Prompt | 10 | 5 | 50% |
+| Phase C 多 Agent 与 Prompt | 10 | 6 | 60% |
 | Phase D RAG 知识库与导出 | 4 | 0 | 0% |
 | Phase E 前端改造与联调 | 3 | 0 | 0% |
 | Phase F 测试与发布准备 | 4 | 0 | 0% |
-| 合计 | 30 | 14 | 47% |
+| 合计 | 30 | 15 | 50% |
 
 ### 6.3 分阶段任务与验收标准
 
@@ -610,7 +610,7 @@ Project1/
   - 复用来源：`trip_planner_agent.py` 中 `PLANNER_AGENT_PROMPT` 基线结构与整合逻辑。
   - 测试方法：`pytest -q tests/unit/test_planner_synthesis.py`
 
-- [ ] C6：FlightAgent 实现  
+- [x] C6：FlightAgent 实现  
   - 验收：输出结构化航班方案，含排序理由与 `booking_url`（无 deep link 时回退 `source_url` 并标注）。
   - 测试方法：`pytest -q tests/unit/test_flight_agent.py`
 
