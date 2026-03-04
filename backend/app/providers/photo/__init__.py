@@ -1,0 +1,1 @@
+"""Photo provider abstraction layer."""

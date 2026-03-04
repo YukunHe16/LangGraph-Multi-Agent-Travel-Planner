@@ -527,12 +527,12 @@ Project1/
 | 阶段 | 总任务数 | 已完成 | 进度 |
 |---|---:|---:|---:|
 | Phase A 基础迁移与脚手架 | 4 | 4 | 100% |
-| Phase B 可插拔工具层 | 5 | 1 | 20% |
+| Phase B 可插拔工具层 | 5 | 2 | 40% |
 | Phase C 多 Agent 与 Prompt | 10 | 0 | 0% |
 | Phase D RAG 知识库与导出 | 4 | 0 | 0% |
 | Phase E 前端改造与联调 | 3 | 0 | 0% |
 | Phase F 测试与发布准备 | 4 | 0 | 0% |
-| 合计 | 30 | 5 | 16.7% |
+| 合计 | 30 | 6 | 20% |
 
 ### 6.3 分阶段任务与验收标准
 
@@ -566,7 +566,7 @@ Project1/
   - 复用来源：hello agent 中的高德地图 API 封装与地图路由调用逻辑。
   - 测试方法：`pytest -q tests/unit/test_map_providers.py`
 
-- [ ] B2：Photo Provider 抽象与双实现（Unsplash/Google Places）  
+- [x] B2：Photo Provider 抽象与双实现（Unsplash/Google Places）  
   - 验收：景点图片接口可切换，返回统一格式。
   - 复用来源：hello agent 中已有图片获取与景点展示相关逻辑（若有）。
   - 测试方法：`pytest -q tests/unit/test_photo_providers.py`

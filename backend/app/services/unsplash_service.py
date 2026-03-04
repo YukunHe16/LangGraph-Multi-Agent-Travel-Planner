@@ -1,63 +1,32 @@
-"""Unsplash service migrated from hello-agents service layer."""
+"""Unsplash service – backward-compatible wrapper delegating to photo provider layer."""
 
 from __future__ import annotations
 
 from typing import Any
 
-import httpx
-
-from app.config.settings import get_settings
-from app.models.schemas import PhotoItem, PhotoSearchInput, PhotoSearchOutput
+from app.models.schemas import PhotoSearchInput
+from app.providers.photo.factory import get_photo_provider, reset_photo_provider
 
 
 class UnsplashService:
-    """Simple Unsplash client used by attraction recommendation flow."""
+    """Backward-compatible wrapper over ``IPhotoProvider``.
+
+    Existing call-sites (agents, routes) keep working without changes while
+    the actual implementation is now pluggable via ``settings.yaml``.
+    """
 
     def __init__(self) -> None:
-        settings = get_settings()
-        self.access_key = settings.providers.unsplash_access_key
-        self.base_url = "https://api.unsplash.com"
+        self._provider = get_photo_provider()
 
     def search_photos(self, query: str, per_page: int = 5) -> list[dict[str, Any]]:
-        """Search images by keyword; return empty list when key is missing."""
+        """Search images by keyword; return list of dicts for backward compat."""
         contract = PhotoSearchInput(query=query, per_page=per_page)
-        if not self.access_key:
-            return []
-
-        url = f"{self.base_url}/search/photos"
-        params = {
-            "query": contract.query,
-            "per_page": contract.per_page,
-            "client_id": self.access_key,
-        }
-
-        try:
-            with httpx.Client(timeout=10) as client:
-                response = client.get(url, params=params)
-                response.raise_for_status()
-            data = response.json()
-            results = data.get("results", [])
-            photos: list[PhotoItem] = []
-            for photo in results:
-                photos.append(
-                    PhotoItem(
-                        id=photo.get("id"),
-                        url=photo.get("urls", {}).get("regular"),
-                        thumb=photo.get("urls", {}).get("thumb"),
-                        description=photo.get("description") or photo.get("alt_description"),
-                        photographer=photo.get("user", {}).get("name"),
-                    )
-                )
-            return [item.model_dump() for item in PhotoSearchOutput(items=photos).items]
-        except Exception:
-            return []
+        photos = self._provider.search_photos(contract.query, contract.per_page)
+        return [item.model_dump() for item in photos]
 
     def get_photo_url(self, query: str) -> str | None:
         """Return first image URL for a query."""
-        photos = self.search_photos(query, per_page=1)
-        if photos:
-            return photos[0].get("url")
-        return None
+        return self._provider.get_photo_url(query)
 
 
 _unsplash_service: UnsplashService | None = None

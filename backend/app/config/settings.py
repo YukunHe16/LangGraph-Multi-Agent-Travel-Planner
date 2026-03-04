@@ -41,6 +41,9 @@ class ProviderSettings(BaseModel):
     map_provider: str = "amap"
     map_provider_fallback: str = ""
     google_maps_api_key: str = ""
+    photo_provider: str = "unsplash"
+    photo_provider_fallback: str = ""
+    google_places_api_key: str = ""
 
 
 class Settings(BaseModel):

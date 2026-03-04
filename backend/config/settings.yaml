@@ -17,3 +17,6 @@ providers:
   map_provider: amap
   map_provider_fallback: ""
   google_maps_api_key: ""
+  photo_provider: unsplash
+  photo_provider_fallback: ""
+  google_places_api_key: ""
