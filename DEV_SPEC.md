@@ -527,12 +527,12 @@ Project1/
 | 阶段 | 总任务数 | 已完成 | 进度 |
 |---|---:|---:|---:|
 | Phase A 基础迁移与脚手架 | 4 | 4 | 100% |
-| Phase B 可插拔工具层 | 5 | 3 | 60% |
+| Phase B 可插拔工具层 | 5 | 4 | 80% |
 | Phase C 多 Agent 与 Prompt | 10 | 0 | 0% |
 | Phase D RAG 知识库与导出 | 4 | 0 | 0% |
 | Phase E 前端改造与联调 | 3 | 0 | 0% |
 | Phase F 测试与发布准备 | 4 | 0 | 0% |
-| 合计 | 30 | 7 | 23.3% |
+| 合计 | 30 | 8 | 26.7% |
 
 ### 6.3 分阶段任务与验收标准
 
@@ -575,7 +575,7 @@ Project1/
   - 验收：基于 Amadeus `Flight Offers Search` 可按往返日期和目的地返回候选航班。
   - 测试方法：`pytest -q tests/integration/test_flight_provider_live_like.py`
 
-- [ ] B4：Visa Source Provider（白名单域名）  
+- [x] B4：Visa Source Provider（白名单域名）  
   - 验收：基于 Sherpa `Requirements API` 返回签证要求；仅白名单可访问，输出带来源 URL。
   - 测试方法：`pytest -q tests/unit/test_visa_whitelist.py`
 

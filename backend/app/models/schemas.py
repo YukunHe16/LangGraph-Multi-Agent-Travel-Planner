@@ -367,6 +367,41 @@ class FlightSearchOutput(BaseModel):
     items: List[FlightOffer] = Field(default_factory=list, description="航班报价列表")
 
 
+class VisaRequirementsInput(BaseModel):
+    """Visa provider input contract."""
+
+    nationality: str = Field(..., min_length=2, max_length=2, description="国籍 ISO 3166-1 alpha-2")
+    destination: str = Field(..., min_length=2, max_length=2, description="目的地国家 ISO 3166-1 alpha-2")
+    travel_duration_days: int = Field(default=7, ge=1, le=365, description="旅行天数")
+
+    @field_validator("nationality", "destination")
+    @classmethod
+    def validate_country_code(cls, value: str) -> str:
+        """Ensure country codes are uppercase."""
+        return value.upper()
+
+
+class VisaRequirement(BaseModel):
+    """Visa requirement details returned by a provider."""
+
+    visa_required: bool = Field(..., description="是否需要签证")
+    visa_type: Optional[str] = Field(default=None, description="签证类型（如 tourist, transit）")
+    documents: List[str] = Field(default_factory=list, description="所需材料清单")
+    processing_time: Optional[str] = Field(default=None, description="办理时效")
+    validity: Optional[str] = Field(default=None, description="签证有效期")
+    notes: Optional[str] = Field(default=None, description="风险提示或备注")
+    source_url: str = Field(..., description="来源链接（强制）")
+
+
+class VisaRequirementsOutput(BaseModel):
+    """Visa provider output contract."""
+
+    provider: str = Field(default="sherpa", description="provider 标识")
+    nationality: str = Field(..., description="查询国籍")
+    destination: str = Field(..., description="目的地国家")
+    requirements: List[VisaRequirement] = Field(default_factory=list, description="签证要求列表")
+
+
 class WorkerContext(BaseModel):
     """Agent worker context contract."""
 

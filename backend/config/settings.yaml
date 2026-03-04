@@ -25,3 +25,8 @@ providers:
   amadeus_base_url: "https://test.api.amadeus.com"
   amadeus_client_id: ""
   amadeus_client_secret: ""
+  visa_provider: sherpa
+  visa_provider_fallback: ""
+  sherpa_base_url: "https://requirements-api.joinsherpa.com"
+  sherpa_api_key: ""
+  visa_api_whitelist: "api.joinsherpa.com,requirements-api.joinsherpa.com"

@@ -49,6 +49,11 @@ class ProviderSettings(BaseModel):
     amadeus_base_url: str = "https://test.api.amadeus.com"
     amadeus_client_id: str = ""
     amadeus_client_secret: str = ""
+    visa_provider: str = "sherpa"
+    visa_provider_fallback: str = ""
+    sherpa_base_url: str = "https://requirements-api.joinsherpa.com"
+    sherpa_api_key: str = ""
+    visa_api_whitelist: str = "api.joinsherpa.com,requirements-api.joinsherpa.com"
 
 
 class Settings(BaseModel):
