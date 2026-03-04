@@ -44,6 +44,11 @@ class ProviderSettings(BaseModel):
     photo_provider: str = "unsplash"
     photo_provider_fallback: str = ""
     google_places_api_key: str = ""
+    flight_provider: str = "amadeus"
+    flight_provider_fallback: str = ""
+    amadeus_base_url: str = "https://test.api.amadeus.com"
+    amadeus_client_id: str = ""
+    amadeus_client_secret: str = ""
 
 
 class Settings(BaseModel):

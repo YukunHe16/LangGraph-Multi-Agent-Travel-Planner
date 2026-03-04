@@ -309,6 +309,64 @@ class PhotoSearchOutput(BaseModel):
     items: List[PhotoItem] = Field(default_factory=list, description="图片列表")
 
 
+class FlightSearchInput(BaseModel):
+    """Flight provider search input contract."""
+
+    origin: str = Field(..., min_length=3, max_length=3, description="出发地 IATA 代码")
+    destination: str = Field(..., min_length=3, max_length=3, description="目的地 IATA 代码")
+    departure_date: str = Field(..., description="出发日期 YYYY-MM-DD")
+    return_date: Optional[str] = Field(default=None, description="返回日期 YYYY-MM-DD（单程可省略）")
+    adults: int = Field(default=1, ge=1, le=9, description="成人数")
+    max_results: int = Field(default=5, ge=1, le=20, description="最大返回结果数")
+
+    @field_validator("origin", "destination")
+    @classmethod
+    def validate_iata(cls, value: str) -> str:
+        """Ensure IATA codes are uppercase."""
+        return value.upper()
+
+    @field_validator("departure_date", "return_date")
+    @classmethod
+    def validate_flight_date(cls, value: Optional[str]) -> Optional[str]:
+        """Validate date fields in YYYY-MM-DD format when provided."""
+        if value is not None:
+            datetime.strptime(value, "%Y-%m-%d")
+        return value
+
+
+class FlightSegment(BaseModel):
+    """A single flight leg within an offer."""
+
+    departure_airport: str = Field(..., description="出发机场 IATA")
+    arrival_airport: str = Field(..., description="到达机场 IATA")
+    departure_time: str = Field(..., description="出发时间 ISO 8601")
+    arrival_time: str = Field(..., description="到达时间 ISO 8601")
+    carrier: str = Field(..., description="航空公司代码")
+    flight_number: str = Field(..., description="航班号")
+    duration: Optional[str] = Field(default=None, description="飞行时长 ISO 8601 duration")
+
+
+class FlightOffer(BaseModel):
+    """A single flight offer returned by a provider."""
+
+    id: str = Field(..., description="报价 ID")
+    price: float = Field(..., description="总价")
+    currency: str = Field(default="EUR", description="货币")
+    outbound_segments: List[FlightSegment] = Field(default_factory=list, description="去程航段")
+    return_segments: List[FlightSegment] = Field(default_factory=list, description="回程航段")
+    booking_url: Optional[str] = Field(default=None, description="预订链接")
+    source_url: Optional[str] = Field(default=None, description="来源链接")
+    carrier_name: Optional[str] = Field(default=None, description="主承运航空公司名称")
+    total_duration: Optional[str] = Field(default=None, description="总时长")
+
+
+class FlightSearchOutput(BaseModel):
+    """Flight provider output contract."""
+
+    provider: str = Field(default="amadeus", description="provider 标识")
+    items: List[FlightOffer] = Field(default_factory=list, description="航班报价列表")
+
+
 class WorkerContext(BaseModel):
     """Agent worker context contract."""
 

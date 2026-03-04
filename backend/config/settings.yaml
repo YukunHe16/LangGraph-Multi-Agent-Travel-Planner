@@ -20,3 +20,8 @@ providers:
   photo_provider: unsplash
   photo_provider_fallback: ""
   google_places_api_key: ""
+  flight_provider: amadeus
+  flight_provider_fallback: ""
+  amadeus_base_url: "https://test.api.amadeus.com"
+  amadeus_client_id: ""
+  amadeus_client_secret: ""
