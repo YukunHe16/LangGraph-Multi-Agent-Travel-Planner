@@ -1,8 +1,15 @@
 """AttractionAgent — LangGraph worker that searches attractions via pluggable providers.
 
 Rewritten for C2 to use ProviderRegistry instead of hard-coded services.
+Enhanced in C8 to integrate RAG tool for Wikivoyage knowledge retrieval.
 Retains backward-compatible ``run()`` signature and adds ``as_worker()``
 for the PlannerAgent WorkerFn protocol.
+
+C8 RAG integration strategy:
+  1. If RAG is enabled, search Wikivoyage docs for destination first.
+  2. Merge RAG-sourced attractions with map POI search results.
+  3. RAG-sourced attractions carry ``source_url`` from Wikivoyage.
+  4. If RAG fails or returns empty, fall back to map-only search.
 
 Source prompt: trip_planner_agent.py ATTRACTION_AGENT_PROMPT (migrated in A2).
 """
@@ -12,11 +19,12 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Any, Callable
 
-from app.models.schemas import Attraction, Location, TripRequest
+from app.models.schemas import Attraction, Location, RAGDocument, TripRequest
 from app.prompts.trip_prompts import ATTRACTION_AGENT_PROMPT
 
 if TYPE_CHECKING:
     from app.providers.registry import ProviderRegistry
+    from app.rag.retriever import IRAGRetriever
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +48,9 @@ CITY_CENTER: dict[str, tuple[float, float]] = {
 # Maximum POIs to fetch per search
 _MAX_POIS = 6
 
+# Maximum RAG documents to fetch per search
+_MAX_RAG_DOCS = 5
+
 # Default visit duration in minutes
 _DEFAULT_VISIT_DURATION = 120
 
@@ -48,17 +59,31 @@ class AttractionAgent:
     """Search and rank attraction candidates for a given city and preferences.
 
     Uses ``ProviderRegistry`` to access map (POI search) and photo providers,
-    making the underlying API fully pluggable via ``settings.yaml``.
+    and ``IRAGRetriever`` to search Wikivoyage knowledge base for
+    destination-specific attraction information (C8).
+
+    RAG integration follows a **merge strategy**:
+    - RAG docs are converted to ``Attraction`` models with Wikivoyage source_url.
+    - Map POI results are appended after RAG-sourced attractions.
+    - Deduplication by name prevents showing the same attraction twice.
+    - If RAG fails, the agent silently falls back to map-only search.
 
     Args:
         registry: Optional pre-built ``ProviderRegistry``. When *None*,
+            the module-level singleton is resolved lazily on first call.
+        retriever: Optional pre-built ``IRAGRetriever``. When *None*,
             the module-level singleton is resolved lazily on first call.
     """
 
     prompt: str = ATTRACTION_AGENT_PROMPT
 
-    def __init__(self, registry: "ProviderRegistry | None" = None) -> None:
+    def __init__(
+        self,
+        registry: "ProviderRegistry | None" = None,
+        retriever: "IRAGRetriever | None" = None,
+    ) -> None:
         self._registry = registry
+        self._retriever = retriever
 
     # ------------------------------------------------------------------
     # Provider access (lazy)
@@ -73,38 +98,199 @@ class AttractionAgent:
             self._registry = get_provider_registry()
         return self._registry
 
+    @property
+    def _rag(self) -> "IRAGRetriever":
+        """Lazy-resolve the RAG retriever."""
+        if self._retriever is None:
+            from app.rag.retriever import get_rag_retriever
+
+            self._retriever = get_rag_retriever()
+        return self._retriever
+
     # ------------------------------------------------------------------
     # Core logic
     # ------------------------------------------------------------------
 
     def run(self, request: TripRequest) -> list[Attraction]:
-        """Return attraction candidates using map + photo providers.
+        """Return attraction candidates using RAG + map + photo providers.
+
+        C8 strategy:
+        1. Search Wikivoyage via RAG retriever (if enabled).
+        2. Search map POIs via map provider.
+        3. Merge RAG-sourced attractions (first) with map attractions.
+        4. Deduplicate by name.
+        5. Return combined list; never empty (falls back to deterministic defaults).
 
         Args:
             request: A ``TripRequest`` with at least ``city`` populated.
 
         Returns:
-            A list of ``Attraction`` models; never empty (falls back to
-            deterministic defaults when no POIs are found).
+            A list of ``Attraction`` models; never empty.
         """
         keyword = request.preferences[0] if request.preferences else "景点"
         logger.info("AttractionAgent.run: city=%s keyword=%s", request.city, keyword)
 
+        # Step 1: RAG search (best-effort)
+        rag_attractions = self._search_rag(request.city, request.preferences)
+
+        # Step 2: Map POI search
+        map_attractions = self._search_map(request.city, keyword)
+
+        # Step 3: Merge and deduplicate
+        merged = self._merge_attractions(rag_attractions, map_attractions)
+
+        if merged:
+            return merged
+
+        # Step 4: Fallback when both RAG and map return nothing
+        logger.info("No attractions found, using fallback for %s", request.city)
+        return self._build_fallback(request.city, keyword)
+
+    # ------------------------------------------------------------------
+    # RAG search (C8)
+    # ------------------------------------------------------------------
+
+    def _search_rag(
+        self,
+        city: str,
+        preferences: list[str] | None = None,
+    ) -> list[Attraction]:
+        """Search Wikivoyage knowledge base for destination attractions.
+
+        Returns a list of ``Attraction`` models built from RAG documents.
+        On failure, returns an empty list (graceful degradation).
+        """
+        try:
+            result = self._rag.search_docs(
+                destination=city,
+                limit=_MAX_RAG_DOCS,
+                preferences=preferences,
+            )
+        except Exception:
+            logger.warning(
+                "RAG search failed for city=%s, degrading to map-only",
+                city,
+                exc_info=True,
+            )
+            return []
+
+        if not result.items:
+            logger.debug("RAG returned 0 docs for city=%s", city)
+            return []
+
+        attractions = [
+            self._rag_doc_to_attraction(doc, city, idx)
+            for idx, doc in enumerate(result.items)
+        ]
+        logger.info(
+            "RAG returned %d attractions for city=%s (provider=%s)",
+            len(attractions),
+            city,
+            result.provider,
+        )
+        return attractions
+
+    def _rag_doc_to_attraction(
+        self,
+        doc: RAGDocument,
+        city: str,
+        idx: int,
+    ) -> Attraction:
+        """Convert a RAG document into an ``Attraction`` model.
+
+        The ``source_url`` is preserved from the Wikivoyage page link
+        for full citation traceability.
+        """
+        # Use city center coords as approximation (RAG docs lack precise coords)
+        lon, lat = CITY_CENTER.get(city, (116.397128, 39.916527))
+
+        # Extract a name from the page title or content
+        name = self._extract_attraction_name(doc, city, idx)
+
+        # Fetch photo (best-effort)
+        photo_url = self._get_photo_safe(f"{name} {city}")
+
+        return Attraction(
+            name=name,
+            address=f"{city}（来源：Wikivoyage）",
+            location=Location(
+                longitude=lon + idx * 0.005,
+                latitude=lat + idx * 0.005,
+            ),
+            visit_duration=_DEFAULT_VISIT_DURATION,
+            description=doc.content[:200] if len(doc.content) > 200 else doc.content,
+            category="Wikivoyage推荐",
+            rating=round(min(5.0, 4.0 + doc.relevance_score), 1),
+            image_url=photo_url,
+            source_url=doc.source_url,
+            ticket_price=0,
+        )
+
+    @staticmethod
+    def _extract_attraction_name(doc: RAGDocument, city: str, idx: int) -> str:
+        """Extract a meaningful attraction name from a RAG document.
+
+        Tries to use the page_title; falls back to a generic name.
+        """
+        title = doc.page_title.strip()
+        if title and title.lower() not in ("", city.lower()):
+            # Use sub-page name if present (e.g. "Beijing/Dongcheng" → "Dongcheng")
+            if "/" in title:
+                return title.split("/")[-1].strip()
+            return title
+        return f"{city}Wikivoyage推荐景点{idx + 1}"
+
+    # ------------------------------------------------------------------
+    # Map search (original C2 logic, extracted)
+    # ------------------------------------------------------------------
+
+    def _search_map(self, city: str, keyword: str) -> list[Attraction]:
+        """Search map POIs and convert to Attraction models."""
         try:
             pois = self._reg.map.search_poi(
                 keywords=keyword,
-                city=request.city,
+                city=city,
                 citylimit=True,
             )
         except Exception:
-            logger.warning("POI search failed, falling back to defaults", exc_info=True)
-            pois = []
+            logger.warning("POI search failed, returning empty", exc_info=True)
+            return []
 
-        if pois:
-            return self._build_from_pois(pois[:_MAX_POIS], request.city, keyword)
+        if not pois:
+            return []
 
-        logger.info("No POIs found, using fallback attractions for %s", request.city)
-        return self._build_fallback(request.city, keyword)
+        return self._build_from_pois(pois[:_MAX_POIS], city, keyword)
+
+    # ------------------------------------------------------------------
+    # Merge & deduplicate
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _merge_attractions(
+        rag_attractions: list[Attraction],
+        map_attractions: list[Attraction],
+    ) -> list[Attraction]:
+        """Merge RAG-sourced and map-sourced attractions, deduplicating by name.
+
+        RAG attractions appear first (higher trust for curated knowledge),
+        followed by map attractions not already present.
+        """
+        seen_names: set[str] = set()
+        merged: list[Attraction] = []
+
+        for a in rag_attractions:
+            key = a.name.lower().strip()
+            if key not in seen_names:
+                seen_names.add(key)
+                merged.append(a)
+
+        for a in map_attractions:
+            key = a.name.lower().strip()
+            if key not in seen_names:
+                seen_names.add(key)
+                merged.append(a)
+
+        return merged
 
     # ------------------------------------------------------------------
     # POI → Attraction conversion
@@ -204,16 +390,24 @@ class AttractionAgent:
         """Return a ``WorkerFn``-compatible callable for PlannerAgent.
 
         The returned function takes ``PlannerState`` and returns a dict
-        with key ``attractions`` containing serialised ``Attraction`` list.
+        with key ``attractions`` containing serialised ``Attraction`` list,
+        and ``rag_sources`` listing Wikivoyage source URLs (C8).
         """
 
         def _worker(state: dict) -> dict:
             request = TripRequest(**state["request"])
             attractions = self.run(request)
+            # Collect RAG source URLs for PlannerAgent source_links aggregation
+            rag_sources = [
+                a.source_url
+                for a in attractions
+                if a.source_url and "wikivoyage.org" in a.source_url
+            ]
             return {
                 "attractions": [
                     a.model_dump() for a in attractions
                 ],
+                "rag_sources": rag_sources,
             }
 
         return _worker

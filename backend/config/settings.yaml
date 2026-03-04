@@ -30,3 +30,10 @@ providers:
   sherpa_base_url: "https://requirements-api.joinsherpa.com"
   sherpa_api_key: ""
   visa_api_whitelist: "api.joinsherpa.com,requirements-api.joinsherpa.com"
+
+rag:
+  enabled: true
+  source: wikivoyage_cn_jp
+  integration_mode: external_mcp_rag
+  mcp_rag_project_root: ""
+  index_name: wikivoyage_cn_jp_attractions

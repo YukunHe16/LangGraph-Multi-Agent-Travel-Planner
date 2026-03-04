@@ -24,6 +24,10 @@ from app.agents.workers.attraction_agent import (
     _MAX_POIS,
 )
 from app.models.schemas import Attraction, Location, POIInfo, TripRequest
+from app.rag.retriever import NullRetriever
+
+# All C2 unit tests inject NullRetriever to isolate from RAG (C8).
+_NULL_RETRIEVER = NullRetriever()
 
 
 # ---------------------------------------------------------------------------
@@ -92,7 +96,7 @@ class TestAttractionFromPOI:
     def test_returns_attractions_from_pois(self) -> None:
         pois = [_make_poi(f"景点{i}", i) for i in range(3)]
         registry = _make_registry_mock(pois=pois)
-        agent = AttractionAgent(registry=registry)
+        agent = AttractionAgent(registry=registry, retriever=_NULL_RETRIEVER)
 
         result = agent.run(_make_request())
 
@@ -102,7 +106,7 @@ class TestAttractionFromPOI:
     def test_limits_to_max_pois(self) -> None:
         pois = [_make_poi(f"景点{i}", i) for i in range(10)]
         registry = _make_registry_mock(pois=pois)
-        agent = AttractionAgent(registry=registry)
+        agent = AttractionAgent(registry=registry, retriever=_NULL_RETRIEVER)
 
         result = agent.run(_make_request())
 
@@ -111,7 +115,7 @@ class TestAttractionFromPOI:
     def test_attraction_has_source_url(self) -> None:
         pois = [_make_poi("故宫")]
         registry = _make_registry_mock(pois=pois)
-        agent = AttractionAgent(registry=registry)
+        agent = AttractionAgent(registry=registry, retriever=_NULL_RETRIEVER)
 
         result = agent.run(_make_request())
 
@@ -121,7 +125,7 @@ class TestAttractionFromPOI:
     def test_attraction_has_image_url(self) -> None:
         pois = [_make_poi("故宫")]
         registry = _make_registry_mock(pois=pois, photo_url="https://example.com/photo.jpg")
-        agent = AttractionAgent(registry=registry)
+        agent = AttractionAgent(registry=registry, retriever=_NULL_RETRIEVER)
 
         result = agent.run(_make_request())
 
@@ -130,7 +134,7 @@ class TestAttractionFromPOI:
     def test_attraction_has_visit_duration(self) -> None:
         pois = [_make_poi("故宫")]
         registry = _make_registry_mock(pois=pois)
-        agent = AttractionAgent(registry=registry)
+        agent = AttractionAgent(registry=registry, retriever=_NULL_RETRIEVER)
 
         result = agent.run(_make_request())
 
@@ -139,7 +143,7 @@ class TestAttractionFromPOI:
     def test_attraction_has_category_from_preference(self) -> None:
         pois = [_make_poi("故宫")]
         registry = _make_registry_mock(pois=pois)
-        agent = AttractionAgent(registry=registry)
+        agent = AttractionAgent(registry=registry, retriever=_NULL_RETRIEVER)
 
         result = agent.run(_make_request(preferences=["历史文化"]))
 
@@ -148,7 +152,7 @@ class TestAttractionFromPOI:
     def test_uses_first_preference_as_keyword(self) -> None:
         pois = [_make_poi("故宫")]
         registry = _make_registry_mock(pois=pois)
-        agent = AttractionAgent(registry=registry)
+        agent = AttractionAgent(registry=registry, retriever=_NULL_RETRIEVER)
 
         agent.run(_make_request(preferences=["公园", "博物馆"]))
 
@@ -159,7 +163,7 @@ class TestAttractionFromPOI:
     def test_default_keyword_when_no_preferences(self) -> None:
         pois = [_make_poi("某景点")]
         registry = _make_registry_mock(pois=pois)
-        agent = AttractionAgent(registry=registry)
+        agent = AttractionAgent(registry=registry, retriever=_NULL_RETRIEVER)
 
         agent.run(_make_request(preferences=[]))
 
@@ -170,7 +174,7 @@ class TestAttractionFromPOI:
     def test_rating_decreases_with_index(self) -> None:
         pois = [_make_poi(f"景点{i}", i) for i in range(3)]
         registry = _make_registry_mock(pois=pois)
-        agent = AttractionAgent(registry=registry)
+        agent = AttractionAgent(registry=registry, retriever=_NULL_RETRIEVER)
 
         result = agent.run(_make_request())
 
@@ -187,7 +191,7 @@ class TestPhotoEnrichment:
     def test_photo_failure_returns_none_image_url(self) -> None:
         pois = [_make_poi("故宫")]
         registry = _make_registry_mock(pois=pois, photo_raises=True)
-        agent = AttractionAgent(registry=registry)
+        agent = AttractionAgent(registry=registry, retriever=_NULL_RETRIEVER)
 
         result = agent.run(_make_request())
 
@@ -196,10 +200,11 @@ class TestPhotoEnrichment:
     def test_photo_called_with_name_and_city(self) -> None:
         pois = [_make_poi("故宫")]
         registry = _make_registry_mock(pois=pois)
-        agent = AttractionAgent(registry=registry)
+        agent = AttractionAgent(registry=registry, retriever=_NULL_RETRIEVER)
 
         agent.run(_make_request())
 
+        # With NullRetriever (no RAG), photo is called once per map POI
         registry.photo.get_photo_url.assert_called_once_with("故宫 北京")
 
 
@@ -212,7 +217,7 @@ class TestFallback:
 
     def test_empty_pois_triggers_fallback(self) -> None:
         registry = _make_registry_mock(pois=[])
-        agent = AttractionAgent(registry=registry)
+        agent = AttractionAgent(registry=registry, retriever=_NULL_RETRIEVER)
 
         result = agent.run(_make_request())
 
@@ -221,7 +226,7 @@ class TestFallback:
 
     def test_fallback_has_source_url(self) -> None:
         registry = _make_registry_mock(pois=[])
-        agent = AttractionAgent(registry=registry)
+        agent = AttractionAgent(registry=registry, retriever=_NULL_RETRIEVER)
 
         result = agent.run(_make_request())
 
@@ -230,7 +235,7 @@ class TestFallback:
 
     def test_fallback_uses_city_center_coordinates(self) -> None:
         registry = _make_registry_mock(pois=[])
-        agent = AttractionAgent(registry=registry)
+        agent = AttractionAgent(registry=registry, retriever=_NULL_RETRIEVER)
 
         result = agent.run(_make_request(city="上海"))
 
@@ -240,7 +245,7 @@ class TestFallback:
 
     def test_fallback_default_coordinates_for_unknown_city(self) -> None:
         registry = _make_registry_mock(pois=[])
-        agent = AttractionAgent(registry=registry)
+        agent = AttractionAgent(registry=registry, retriever=_NULL_RETRIEVER)
 
         result = agent.run(_make_request(city="拉萨"))
 
@@ -249,7 +254,7 @@ class TestFallback:
 
     def test_exception_triggers_fallback(self) -> None:
         registry = _make_registry_mock(search_raises=True)
-        agent = AttractionAgent(registry=registry)
+        agent = AttractionAgent(registry=registry, retriever=_NULL_RETRIEVER)
 
         result = agent.run(_make_request())
 
@@ -268,21 +273,25 @@ class TestSourceURL:
         pois = [_make_poi("故宫")]
         registry = _make_registry_mock(pois=pois)
         registry.map.provider_name = "amap"
-        agent = AttractionAgent(registry=registry)
+        agent = AttractionAgent(registry=registry, retriever=_NULL_RETRIEVER)
 
         result = agent.run(_make_request())
 
-        assert "ditu.amap.com" in result[0].source_url
+        # Map-sourced attraction should have amap URL
+        map_attraction = [a for a in result if a.category != "Wikivoyage推荐"][0]
+        assert "ditu.amap.com" in map_attraction.source_url
 
     def test_google_source_url(self) -> None:
         pois = [_make_poi("故宫")]
         registry = _make_registry_mock(pois=pois)
         registry.map.provider_name = "google"
-        agent = AttractionAgent(registry=registry)
+        agent = AttractionAgent(registry=registry, retriever=_NULL_RETRIEVER)
 
         result = agent.run(_make_request())
 
-        assert "google.com/maps" in result[0].source_url
+        # Map-sourced attraction should have google URL
+        map_attraction = [a for a in result if a.category != "Wikivoyage推荐"][0]
+        assert "google.com/maps" in map_attraction.source_url
 
 
 # ---------------------------------------------------------------------------
@@ -295,7 +304,7 @@ class TestAsWorker:
     def test_worker_returns_dict_with_attractions_key(self) -> None:
         pois = [_make_poi("故宫")]
         registry = _make_registry_mock(pois=pois)
-        agent = AttractionAgent(registry=registry)
+        agent = AttractionAgent(registry=registry, retriever=_NULL_RETRIEVER)
         worker = agent.as_worker()
 
         state = {"request": _make_request().model_dump()}
@@ -307,7 +316,7 @@ class TestAsWorker:
     def test_worker_attractions_are_dicts(self) -> None:
         pois = [_make_poi("故宫")]
         registry = _make_registry_mock(pois=pois)
-        agent = AttractionAgent(registry=registry)
+        agent = AttractionAgent(registry=registry, retriever=_NULL_RETRIEVER)
         worker = agent.as_worker()
 
         state = {"request": _make_request().model_dump()}
@@ -318,7 +327,7 @@ class TestAsWorker:
     def test_worker_attraction_dict_has_required_fields(self) -> None:
         pois = [_make_poi("故宫")]
         registry = _make_registry_mock(pois=pois)
-        agent = AttractionAgent(registry=registry)
+        agent = AttractionAgent(registry=registry, retriever=_NULL_RETRIEVER)
         worker = agent.as_worker()
 
         state = {"request": _make_request().model_dump()}
@@ -331,7 +340,7 @@ class TestAsWorker:
 
     def test_worker_fallback_on_empty_search(self) -> None:
         registry = _make_registry_mock(pois=[])
-        agent = AttractionAgent(registry=registry)
+        agent = AttractionAgent(registry=registry, retriever=_NULL_RETRIEVER)
         worker = agent.as_worker()
 
         state = {"request": _make_request().model_dump()}
@@ -349,7 +358,7 @@ class TestRegistryLazy:
 
     def test_lazy_resolution(self) -> None:
         mock_registry = _make_registry_mock(pois=[])
-        agent = AttractionAgent()  # No registry injected
+        agent = AttractionAgent(retriever=_NULL_RETRIEVER)  # No registry injected
 
         # Manually set the registry to simulate lazy resolution
         with patch.object(agent, "_registry", None):
@@ -361,7 +370,7 @@ class TestRegistryLazy:
 
     def test_injected_registry_not_lazily_resolved(self) -> None:
         registry = _make_registry_mock(pois=[])
-        agent = AttractionAgent(registry=registry)
+        agent = AttractionAgent(registry=registry, retriever=_NULL_RETRIEVER)
 
         # The registry is already set, so lazy resolution should not trigger
         import app.providers.registry as reg_mod
@@ -391,7 +400,7 @@ class TestSchemaCompliance:
     def test_all_fields_serializable(self) -> None:
         pois = [_make_poi("故宫")]
         registry = _make_registry_mock(pois=pois)
-        agent = AttractionAgent(registry=registry)
+        agent = AttractionAgent(registry=registry, retriever=_NULL_RETRIEVER)
 
         result = agent.run(_make_request())
 
@@ -405,7 +414,7 @@ class TestSchemaCompliance:
     def test_ticket_price_positive(self) -> None:
         pois = [_make_poi("故宫")]
         registry = _make_registry_mock(pois=pois)
-        agent = AttractionAgent(registry=registry)
+        agent = AttractionAgent(registry=registry, retriever=_NULL_RETRIEVER)
 
         result = agent.run(_make_request())
 

@@ -56,12 +56,23 @@ class ProviderSettings(BaseModel):
     visa_api_whitelist: str = "api.joinsherpa.com,requirements-api.joinsherpa.com"
 
 
+class RAGSettings(BaseModel):
+    """RAG knowledge base configuration."""
+
+    enabled: bool = False
+    source: str = "wikivoyage_cn_jp"
+    integration_mode: str = "external_mcp_rag"
+    mcp_rag_project_root: str = ""
+    index_name: str = "wikivoyage_cn_jp_attractions"
+
+
 class Settings(BaseModel):
     """Root settings model loaded from YAML with sane defaults."""
 
     app: AppSettings = Field(default_factory=AppSettings)
     planner: PlannerSettings = Field(default_factory=PlannerSettings)
     providers: ProviderSettings = Field(default_factory=ProviderSettings)
+    rag: RAGSettings = Field(default_factory=RAGSettings)
 
     @classmethod
     def from_yaml(cls, path: Path) -> "Settings":

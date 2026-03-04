@@ -434,6 +434,36 @@ class HotelWorkerOutput(BaseModel):
     hotel: Hotel = Field(..., description="酒店候选")
 
 
+class RAGDocument(BaseModel):
+    """A single document retrieved from the RAG knowledge base.
+
+    Carries mandatory provenance fields for citation traceability.
+    """
+
+    page_title: str = Field(..., description="Wikivoyage 页面标题")
+    content: str = Field(..., description="文档片段内容")
+    source_url: str = Field(..., description="来源链接（Wikivoyage URL）")
+    relevance_score: float = Field(default=0.0, ge=0.0, le=1.0, description="相关性分数")
+    page_id: Optional[str] = Field(default=None, description="Wikivoyage page ID")
+    revision_id: Optional[str] = Field(default=None, description="Wikivoyage revision ID")
+    retrieved_at: Optional[str] = Field(default=None, description="检索时间 ISO 8601")
+
+
+class RAGSearchInput(BaseModel):
+    """RAG retrieval input contract."""
+
+    destination: str = Field(..., min_length=1, description="目的地城市或区域")
+    limit: int = Field(default=5, ge=1, le=20, description="最大返回文档数")
+    preferences: List[str] = Field(default_factory=list, description="偏好标签")
+
+
+class RAGSearchOutput(BaseModel):
+    """RAG retrieval output contract."""
+
+    provider: str = Field(default="mcp_rag", description="RAG provider 标识")
+    items: List[RAGDocument] = Field(default_factory=list, description="检索到的文档列表")
+
+
 class PlannerSynthesisInput(BaseModel):
     """Planner synthesis stage contract."""
 

@@ -528,11 +528,11 @@ Project1/
 |---|---:|---:|---:|
 | Phase A 基础迁移与脚手架 | 4 | 4 | 100% |
 | Phase B 可插拔工具层 | 5 | 5 | 100% |
-| Phase C 多 Agent 与 Prompt | 10 | 7 | 70% |
+| Phase C 多 Agent 与 Prompt | 10 | 8 | 80% |
 | Phase D RAG 知识库与导出 | 4 | 0 | 0% |
 | Phase E 前端改造与联调 | 3 | 0 | 0% |
 | Phase F 测试与发布准备 | 4 | 0 | 0% |
-| 合计 | 30 | 16 | 53% |
+| 合计 | 30 | 17 | 57% |
 
 ### 6.3 分阶段任务与验收标准
 
@@ -618,7 +618,7 @@ Project1/
   - 验收：跨国触发外部签证查询，国内不触发外部查询且返回 `not_required`；结果可解释且附来源链接。
   - 测试方法：`pytest -q tests/unit/test_visa_agent_trigger.py`
 
-- [ ] C8：AttractionAgent 的 RAG 工具接入实现  
+- [x] C8：AttractionAgent 的 RAG 工具接入实现  
   - 验收：按用户目的地调用 RAG 工具检索 Wikivoyage 中国/日本景点文档，并在输出中保留来源链接。
   - 测试方法：`pytest -q tests/integration/test_attraction_rag_flow.py`
 
