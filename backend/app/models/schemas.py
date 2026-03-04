@@ -163,6 +163,10 @@ class TripPlan(BaseModel):
     weather_info: List[WeatherInfo] = Field(default_factory=list, description="天气信息")
     overall_suggestions: str = Field(..., description="总体建议")
     budget: Optional[Budget] = Field(default=None, description="预算信息")
+    flight_plan: Optional[dict] = Field(default=None, description="航班方案（FlightAgent 输出）")
+    visa_summary: Optional[dict] = Field(default=None, description="签证摘要（VisaAgent 输出）")
+    source_links: List[str] = Field(default_factory=list, description="所有推荐项来源链接（可追溯）")
+    conflicts: List[str] = Field(default_factory=list, description="检测到的冲突提示")
 
 
 class TripPlanResponse(BaseModel):

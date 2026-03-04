@@ -528,11 +528,11 @@ Project1/
 |---|---:|---:|---:|
 | Phase A 基础迁移与脚手架 | 4 | 4 | 100% |
 | Phase B 可插拔工具层 | 5 | 5 | 100% |
-| Phase C 多 Agent 与 Prompt | 10 | 4 | 40% |
+| Phase C 多 Agent 与 Prompt | 10 | 5 | 50% |
 | Phase D RAG 知识库与导出 | 4 | 0 | 0% |
 | Phase E 前端改造与联调 | 3 | 0 | 0% |
 | Phase F 测试与发布准备 | 4 | 0 | 0% |
-| 合计 | 30 | 13 | 43% |
+| 合计 | 30 | 14 | 47% |
 
 ### 6.3 分阶段任务与验收标准
 
@@ -605,7 +605,7 @@ Project1/
   - 复用来源：`trip_planner_agent.py` 中 `HOTEL_AGENT_PROMPT` 与酒店检索流程。
   - 测试方法：`pytest -q tests/unit/test_hotel_agent.py`
 
-- [ ] C5：PlannerAgent 计划合成与冲突处理实现  
+- [x] C5：PlannerAgent 计划合成与冲突处理实现  
   - 验收：可整合 Attraction(含RAG)/Weather/Hotel/Flight/Visa 的中间结果，输出完整按天 itinerary 与预算，并处理航班/酒店/天气冲突；最终计划必须显式包含 `flight_plan`、`visa_summary`、`source_links`，且推荐项链接可追溯。
   - 复用来源：`trip_planner_agent.py` 中 `PLANNER_AGENT_PROMPT` 基线结构与整合逻辑。
   - 测试方法：`pytest -q tests/unit/test_planner_synthesis.py`
