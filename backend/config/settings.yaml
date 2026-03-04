@@ -1,0 +1,9 @@
+app:
+  name: Project1 Travel Planner API
+  env: dev
+  host: 127.0.0.1
+  port: 8010
+
+planner:
+  graph_name: planner_bootstrap_graph
+  default_message: planner graph bootstrapped
