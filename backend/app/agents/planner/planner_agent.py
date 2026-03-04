@@ -140,18 +140,21 @@ class PlannerAgent:
             self._workers: dict[str, WorkerFn] = dict(workers)
         else:
             self._workers = {}
-            if attraction_agent is not None:
-                self._workers["attraction"] = _wrap_legacy_attraction(attraction_agent)
-            if weather_agent is not None:
-                self._workers["weather"] = _wrap_legacy_weather(weather_agent)
-            if hotel_agent is not None:
-                self._workers["hotel"] = _wrap_legacy_hotel(hotel_agent)
-            if flight_worker is not None:
-                self._workers["flight"] = flight_worker
-            if visa_worker is not None:
-                self._workers["visa"] = visa_worker
-            if export_worker is not None:
-                self._workers["export"] = export_worker
+
+        # Merge legacy kwargs — they are added only if the key is not already
+        # present in the workers dict, allowing callers to mix both styles.
+        if attraction_agent is not None and "attraction" not in self._workers:
+            self._workers["attraction"] = _wrap_legacy_attraction(attraction_agent)
+        if weather_agent is not None and "weather" not in self._workers:
+            self._workers["weather"] = _wrap_legacy_weather(weather_agent)
+        if hotel_agent is not None and "hotel" not in self._workers:
+            self._workers["hotel"] = _wrap_legacy_hotel(hotel_agent)
+        if flight_worker is not None and "flight" not in self._workers:
+            self._workers["flight"] = flight_worker
+        if visa_worker is not None and "visa" not in self._workers:
+            self._workers["visa"] = visa_worker
+        if export_worker is not None and "export" not in self._workers:
+            self._workers["export"] = export_worker
 
         self._graph = self._build_graph()
 
@@ -449,13 +452,18 @@ _planner_agent: PlannerAgent | None = None
 
 
 def get_planner_agent() -> PlannerAgent:
-    """Get singleton planner agent instance with legacy workers."""
+    """Get singleton planner agent instance with legacy workers.
+
+    AttractionAgent uses the new ``as_worker()`` protocol (C2+).
+    WeatherAgent / HotelAgent still use legacy wrappers until C3/C4.
+    """
     global _planner_agent
     if _planner_agent is None:
         from app.agents.workers import AttractionAgent, HotelAgent, WeatherAgent
 
+        attraction = AttractionAgent()
         _planner_agent = PlannerAgent(
-            attraction_agent=AttractionAgent(),
+            workers={"attraction": attraction.as_worker()},
             weather_agent=WeatherAgent(),
             hotel_agent=HotelAgent(),
         )

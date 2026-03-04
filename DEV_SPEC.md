@@ -528,11 +528,11 @@ Project1/
 |---|---:|---:|---:|
 | Phase A 基础迁移与脚手架 | 4 | 4 | 100% |
 | Phase B 可插拔工具层 | 5 | 5 | 100% |
-| Phase C 多 Agent 与 Prompt | 10 | 1 | 10% |
+| Phase C 多 Agent 与 Prompt | 10 | 2 | 20% |
 | Phase D RAG 知识库与导出 | 4 | 0 | 0% |
 | Phase E 前端改造与联调 | 3 | 0 | 0% |
 | Phase F 测试与发布准备 | 4 | 0 | 0% |
-| 合计 | 30 | 10 | 33% |
+| 合计 | 30 | 11 | 37% |
 
 ### 6.3 分阶段任务与验收标准
 
@@ -590,7 +590,7 @@ Project1/
   - 复用来源：hello agent 中可复用的任务拆解思路与业务规则。
   - 测试方法：`pytest -q tests/integration/test_planner_routing.py tests/integration/test_planner_delta_routing.py`
 
-- [ ] C2：AttractionAgent 实现（从 hello agent 搬运）  
+- [x] C2：AttractionAgent 实现（从 hello agent 搬运）  
   - 验收：能够稳定调用地图/图片工具返回候选景点，字段结构与 `FinalPlan` 契约一致，并返回 `detail_url/source_url`。
   - 复用来源：`trip_planner_agent.py` 中 `ATTRACTION_AGENT_PROMPT` 与景点搜索流程。
   - 测试方法：`pytest -q tests/unit/test_attraction_agent.py`
