@@ -528,11 +528,11 @@ Project1/
 |---|---:|---:|---:|
 | Phase A 基础迁移与脚手架 | 4 | 4 | 100% |
 | Phase B 可插拔工具层 | 5 | 5 | 100% |
-| Phase C 多 Agent 与 Prompt | 10 | 8 | 80% |
+| Phase C 多 Agent 与 Prompt | 10 | 9 | 90% |
 | Phase D RAG 知识库与导出 | 4 | 0 | 0% |
 | Phase E 前端改造与联调 | 3 | 0 | 0% |
 | Phase F 测试与发布准备 | 4 | 0 | 0% |
-| 合计 | 30 | 17 | 57% |
+| 合计 | 30 | 18 | 60% |
 
 ### 6.3 分阶段任务与验收标准
 
@@ -622,7 +622,7 @@ Project1/
   - 验收：按用户目的地调用 RAG 工具检索 Wikivoyage 中国/日本景点文档，并在输出中保留来源链接。
   - 测试方法：`pytest -q tests/integration/test_attraction_rag_flow.py`
 
-- [ ] C9：全部新 Agent Prompt 定稿与回归集（含 Planner Orchestration Prompt）  
+- [x] C9：全部新 Agent Prompt 定稿与回归集（含 Planner Orchestration Prompt）  
   - 验收：每个 agent prompt 含 8 个必备字段；`PlannerAgent` 额外满足 Routing/Delta/Merge/Conflict/Citation&Link 规则；结构化输出成功率 >= 95%。
   - 复用来源：`Attraction/Weather/Hotel` 允许直接照搬 `trip_planner_agent.py` 既有提示词；`Planner` 在 `PLANNER_AGENT_PROMPT` 基线上做编排增强。
   - 测试方法：`pytest -q tests/unit/test_prompt_regression.py`

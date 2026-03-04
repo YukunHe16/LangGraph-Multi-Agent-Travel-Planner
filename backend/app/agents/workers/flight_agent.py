@@ -15,6 +15,7 @@ import logging
 from typing import TYPE_CHECKING, Any, Callable
 
 from app.models.schemas import FlightOffer, FlightSearchInput, TripRequest
+from app.prompts.trip_prompts import FLIGHT_AGENT_PROMPT
 
 if TYPE_CHECKING:
     from app.providers.registry import ProviderRegistry
@@ -99,6 +100,8 @@ class FlightAgent:
         origin_city: Default departure city name. When the trip request
             does not imply an origin, this city is used.
     """
+
+    prompt: str = FLIGHT_AGENT_PROMPT
 
     def __init__(
         self,

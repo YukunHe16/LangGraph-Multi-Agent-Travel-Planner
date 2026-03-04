@@ -32,7 +32,8 @@ def test_prompt_constants_are_migrated() -> None:
     assert "景点搜索专家" in ATTRACTION_AGENT_PROMPT
     assert "天气查询专家" in WEATHER_AGENT_PROMPT
     assert "酒店推荐专家" in HOTEL_AGENT_PROMPT
-    assert "行程规划专家" in PLANNER_AGENT_PROMPT
+    # C9: PlannerAgent role upgraded to 行程规划总指挥
+    assert "行程规划总指挥" in PLANNER_AGENT_PROMPT
 
 
 def test_trip_plan_route_works_without_hello_agents_runtime() -> None:

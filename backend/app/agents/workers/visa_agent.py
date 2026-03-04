@@ -19,6 +19,7 @@ import logging
 from typing import TYPE_CHECKING, Any, Callable
 
 from app.models.schemas import TripRequest, VisaRequirement
+from app.prompts.trip_prompts import VISA_AGENT_PROMPT
 
 if TYPE_CHECKING:
     from app.providers.registry import ProviderRegistry
@@ -93,6 +94,8 @@ class VisaAgent:
             the module-level singleton is resolved lazily on first call.
         default_nationality: Default traveler nationality ISO 3166-1 alpha-2.
     """
+
+    prompt: str = VISA_AGENT_PROMPT
 
     def __init__(
         self,
