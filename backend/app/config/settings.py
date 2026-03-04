@@ -14,6 +14,14 @@ class AppSettings(BaseModel):
     env: str = "dev"
     host: str = "127.0.0.1"
     port: int = 8010
+    cors_origins: str = (
+        "http://localhost:5173,http://localhost:3000,"
+        "http://127.0.0.1:5173,http://127.0.0.1:3000"
+    )
+
+    def get_cors_origins_list(self) -> list[str]:
+        """Return CORS origins parsed from comma-separated settings."""
+        return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
 
 
 class PlannerSettings(BaseModel):
@@ -23,11 +31,21 @@ class PlannerSettings(BaseModel):
     default_message: str = "planner graph bootstrapped"
 
 
+class ProviderSettings(BaseModel):
+    """Provider and key settings for migrated baseline services."""
+
+    llm_provider: str = "openai"
+    llm_model: str = "gpt-4o-mini"
+    amap_api_key: str = ""
+    unsplash_access_key: str = ""
+
+
 class Settings(BaseModel):
     """Root settings model loaded from YAML with sane defaults."""
 
     app: AppSettings = Field(default_factory=AppSettings)
     planner: PlannerSettings = Field(default_factory=PlannerSettings)
+    providers: ProviderSettings = Field(default_factory=ProviderSettings)
 
     @classmethod
     def from_yaml(cls, path: Path) -> "Settings":

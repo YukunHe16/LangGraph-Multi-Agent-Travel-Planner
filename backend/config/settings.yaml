@@ -3,7 +3,14 @@ app:
   env: dev
   host: 127.0.0.1
   port: 8010
+  cors_origins: http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173,http://127.0.0.1:3000
 
 planner:
   graph_name: planner_bootstrap_graph
   default_message: planner graph bootstrapped
+
+providers:
+  llm_provider: openai
+  llm_model: gpt-4o-mini
+  amap_api_key: ""
+  unsplash_access_key: ""

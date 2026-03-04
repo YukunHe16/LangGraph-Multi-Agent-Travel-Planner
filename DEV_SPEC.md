@@ -526,13 +526,13 @@ Project1/
 
 | 阶段 | 总任务数 | 已完成 | 进度 |
 |---|---:|---:|---:|
-| Phase A 基础迁移与脚手架 | 4 | 1 | 25% |
+| Phase A 基础迁移与脚手架 | 4 | 2 | 50% |
 | Phase B 可插拔工具层 | 5 | 0 | 0% |
 | Phase C 多 Agent 与 Prompt | 10 | 0 | 0% |
 | Phase D RAG 知识库与导出 | 4 | 0 | 0% |
 | Phase E 前端改造与联调 | 3 | 0 | 0% |
 | Phase F 测试与发布准备 | 4 | 0 | 0% |
-| 合计 | 30 | 1 | 3.3% |
+| 合计 | 30 | 2 | 6.7% |
 
 ### 6.3 分阶段任务与验收标准
 
@@ -543,7 +543,7 @@ Project1/
   - 验收：后端可启动，Graph 可跑通最小样例。
   - 测试方法：`pytest -q tests/unit/test_graph_bootstrap.py`
 
-- [ ] A2：迁移 hello agent 的前后端基础代码（分层迁移）  
+- [x] A2：迁移 hello agent 的前后端基础代码（分层迁移）  
   - 交付：前后端页面/API/服务层优先直接迁移；`HelloAgents` 相关 Agent 运行时代码改写为 `LangChain/LangGraph` 后迁移；并落地旧核心 agent：`Attraction/Weather/Hotel/Planner`。
   - 验收：原有核心功能在新仓库可运行，且智能体层不再依赖 HelloAgents。
   - 复用来源：`helloagents-trip-planner` 前端页面、后端 API/服务、旧 agent 提示词与工具封装；提示词直接复用 `trip_planner_agent.py` 中四个常量。
