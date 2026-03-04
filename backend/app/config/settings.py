@@ -38,6 +38,9 @@ class ProviderSettings(BaseModel):
     llm_model: str = "gpt-4o-mini"
     amap_api_key: str = ""
     unsplash_access_key: str = ""
+    map_provider: str = "amap"
+    map_provider_fallback: str = ""
+    google_maps_api_key: str = ""
 
 
 class Settings(BaseModel):

@@ -14,3 +14,6 @@ providers:
   llm_model: gpt-4o-mini
   amap_api_key: ""
   unsplash_access_key: ""
+  map_provider: amap
+  map_provider_fallback: ""
+  google_maps_api_key: ""

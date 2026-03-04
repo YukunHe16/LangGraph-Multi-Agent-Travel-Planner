@@ -527,12 +527,12 @@ Project1/
 | 阶段 | 总任务数 | 已完成 | 进度 |
 |---|---:|---:|---:|
 | Phase A 基础迁移与脚手架 | 4 | 4 | 100% |
-| Phase B 可插拔工具层 | 5 | 0 | 0% |
+| Phase B 可插拔工具层 | 5 | 1 | 20% |
 | Phase C 多 Agent 与 Prompt | 10 | 0 | 0% |
 | Phase D RAG 知识库与导出 | 4 | 0 | 0% |
 | Phase E 前端改造与联调 | 3 | 0 | 0% |
 | Phase F 测试与发布准备 | 4 | 0 | 0% |
-| 合计 | 30 | 4 | 13.3% |
+| 合计 | 30 | 5 | 16.7% |
 
 ### 6.3 分阶段任务与验收标准
 
@@ -561,7 +561,7 @@ Project1/
 
 #### Phase B：可插拔工具层
 
-- [ ] B1：Map Provider 抽象与双实现（Amap/Google Maps）  
+- [x] B1：Map Provider 抽象与双实现（Amap/Google Maps）  
   - 验收：配置切换无需改代码；失败可 fallback。
   - 复用来源：hello agent 中的高德地图 API 封装与地图路由调用逻辑。
   - 测试方法：`pytest -q tests/unit/test_map_providers.py`
