@@ -528,11 +528,11 @@ Project1/
 |---|---:|---:|---:|
 | Phase A 基础迁移与脚手架 | 4 | 4 | 100% |
 | Phase B 可插拔工具层 | 5 | 5 | 100% |
-| Phase C 多 Agent 与 Prompt | 10 | 6 | 60% |
+| Phase C 多 Agent 与 Prompt | 10 | 7 | 70% |
 | Phase D RAG 知识库与导出 | 4 | 0 | 0% |
 | Phase E 前端改造与联调 | 3 | 0 | 0% |
 | Phase F 测试与发布准备 | 4 | 0 | 0% |
-| 合计 | 30 | 15 | 50% |
+| 合计 | 30 | 16 | 53% |
 
 ### 6.3 分阶段任务与验收标准
 
@@ -614,7 +614,7 @@ Project1/
   - 验收：输出结构化航班方案，含排序理由与 `booking_url`（无 deep link 时回退 `source_url` 并标注）。
   - 测试方法：`pytest -q tests/unit/test_flight_agent.py`
 
-- [ ] C7：VisaAgent 实现（仅跨国触发）  
+- [x] C7：VisaAgent 实现（仅跨国触发）  
   - 验收：跨国触发外部签证查询，国内不触发外部查询且返回 `not_required`；结果可解释且附来源链接。
   - 测试方法：`pytest -q tests/unit/test_visa_agent_trigger.py`
 
