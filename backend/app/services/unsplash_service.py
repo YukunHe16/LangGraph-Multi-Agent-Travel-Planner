@@ -7,6 +7,7 @@ from typing import Any
 import httpx
 
 from app.config.settings import get_settings
+from app.models.schemas import PhotoItem, PhotoSearchInput, PhotoSearchOutput
 
 
 class UnsplashService:
@@ -19,11 +20,16 @@ class UnsplashService:
 
     def search_photos(self, query: str, per_page: int = 5) -> list[dict[str, Any]]:
         """Search images by keyword; return empty list when key is missing."""
+        contract = PhotoSearchInput(query=query, per_page=per_page)
         if not self.access_key:
             return []
 
         url = f"{self.base_url}/search/photos"
-        params = {"query": query, "per_page": per_page, "client_id": self.access_key}
+        params = {
+            "query": contract.query,
+            "per_page": contract.per_page,
+            "client_id": self.access_key,
+        }
 
         try:
             with httpx.Client(timeout=10) as client:
@@ -31,18 +37,18 @@ class UnsplashService:
                 response.raise_for_status()
             data = response.json()
             results = data.get("results", [])
-            photos: list[dict[str, Any]] = []
+            photos: list[PhotoItem] = []
             for photo in results:
                 photos.append(
-                    {
-                        "id": photo.get("id"),
-                        "url": photo.get("urls", {}).get("regular"),
-                        "thumb": photo.get("urls", {}).get("thumb"),
-                        "description": photo.get("description") or photo.get("alt_description"),
-                        "photographer": photo.get("user", {}).get("name"),
-                    }
+                    PhotoItem(
+                        id=photo.get("id"),
+                        url=photo.get("urls", {}).get("regular"),
+                        thumb=photo.get("urls", {}).get("thumb"),
+                        description=photo.get("description") or photo.get("alt_description"),
+                        photographer=photo.get("user", {}).get("name"),
+                    )
                 )
-            return photos
+            return [item.model_dump() for item in PhotoSearchOutput(items=photos).items]
         except Exception:
             return []
 

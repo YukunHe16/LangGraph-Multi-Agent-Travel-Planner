@@ -11,7 +11,16 @@ from typing import Any, Optional
 import httpx
 
 from app.config.settings import get_settings
-from app.models.schemas import Location, POIInfo, WeatherInfo
+from app.models.schemas import (
+    Location,
+    MapPOISearchInput,
+    MapPOISearchOutput,
+    MapWeatherInput,
+    MapWeatherOutput,
+    POIDetail,
+    POIInfo,
+    WeatherInfo,
+)
 
 
 class AmapService:
@@ -24,23 +33,25 @@ class AmapService:
 
     def search_poi(self, keywords: str, city: str, citylimit: bool = True) -> list[POIInfo]:
         """Search POIs via Amap REST API, fallback to mock entries when no key."""
+        contract = MapPOISearchInput(keywords=keywords, city=city, citylimit=citylimit)
         if not self.api_key:
-            return [
+            fallback_items = [
                 POIInfo(
-                    id=f"mock-{city}-{keywords}",
-                    name=f"{city}{keywords}推荐点",
+                    id=f"mock-{contract.city}-{contract.keywords}",
+                    name=f"{contract.city}{contract.keywords}推荐点",
                     type="景点",
-                    address=f"{city}市中心",
+                    address=f"{contract.city}市中心",
                     location=Location(longitude=116.397128, latitude=39.916527),
                 )
             ]
+            return MapPOISearchOutput(items=fallback_items).items
 
         url = f"{self.base_url}/v5/place/text"
         params = {
             "key": self.api_key,
-            "keywords": keywords,
-            "region": city,
-            "city_limit": "true" if citylimit else "false",
+            "keywords": contract.keywords,
+            "region": contract.city,
+            "city_limit": "true" if contract.citylimit else "false",
             "show_fields": "business,photos",
         }
         try:
@@ -64,14 +75,15 @@ class AmapService:
                         tel=poi.get("tel") or None,
                     )
                 )
-            return results
+            return MapPOISearchOutput(items=results).items
         except Exception:
             return []
 
     def get_weather(self, city: str) -> list[WeatherInfo]:
         """Query weather via Amap REST API, fallback to one deterministic day."""
+        contract = MapWeatherInput(city=city)
         if not self.api_key:
-            return [
+            fallback_items = [
                 WeatherInfo(
                     date="today",
                     day_weather="晴",
@@ -82,9 +94,10 @@ class AmapService:
                     wind_power="3级",
                 )
             ]
+            return MapWeatherOutput(items=fallback_items).items
 
         url = f"{self.base_url}/v3/weather/weatherInfo"
-        params = {"key": self.api_key, "city": city, "extensions": "base"}
+        params = {"key": self.api_key, "city": contract.city, "extensions": "base"}
         try:
             with httpx.Client(timeout=10) as client:
                 response = client.get(url, params=params)
@@ -94,7 +107,7 @@ class AmapService:
             if not lives:
                 return []
             live = lives[0]
-            return [
+            result_items = [
                 WeatherInfo(
                     date=live.get("reporttime", "")[:10] or "today",
                     day_weather=live.get("weather", ""),
@@ -105,6 +118,7 @@ class AmapService:
                     wind_power=live.get("windpower", ""),
                 )
             ]
+            return MapWeatherOutput(items=result_items).items
         except Exception:
             return []
 
@@ -125,14 +139,9 @@ class AmapService:
             "description": f"{origin_address} 到 {destination_address} 的{route_type}路线",
         }
 
-    def get_poi_detail(self, poi_id: str) -> dict[str, Any]:
+    def get_poi_detail(self, poi_id: str) -> POIDetail:
         """Return a minimal POI detail payload."""
-        return {
-            "id": poi_id,
-            "name": "示例景点",
-            "address": "示例地址",
-            "source": "amap",
-        }
+        return POIDetail(id=poi_id, name="示例景点", address="示例地址", source="amap")
 
 
 _amap_service: AmapService | None = None

@@ -11,12 +11,16 @@ from langgraph.graph import END, START, StateGraph
 from app.agents.workers import AttractionAgent, HotelAgent, WeatherAgent
 from app.models.schemas import (
     Attraction,
+    AttractionWorkerOutput,
     Budget,
     DayPlan,
     Hotel,
+    HotelWorkerOutput,
     Meal,
+    PlannerSynthesisInput,
     TripPlan,
     TripRequest,
+    WeatherWorkerOutput,
     WeatherInfo,
 )
 from app.prompts.trip_prompts import PLANNER_AGENT_PROMPT
@@ -60,21 +64,30 @@ class PlannerAgent:
 
     def _run_attraction(self, state: PlannerState) -> PlannerState:
         request = state["request"]
-        return {"attractions": self.attraction_agent.run(request)}
+        output = AttractionWorkerOutput(attractions=self.attraction_agent.run(request))
+        return output.model_dump()
 
     def _run_weather(self, state: PlannerState) -> PlannerState:
         request = state["request"]
-        return {"weather_info": self.weather_agent.run(request)}
+        output = WeatherWorkerOutput(weather_info=self.weather_agent.run(request))
+        return output.model_dump()
 
     def _run_hotel(self, state: PlannerState) -> PlannerState:
         request = state["request"]
-        return {"hotel": self.hotel_agent.run(request)}
+        output = HotelWorkerOutput(hotel=self.hotel_agent.run(request))
+        return output.model_dump()
 
     def _synthesize(self, state: PlannerState) -> PlannerState:
-        request = state["request"]
-        attractions = state.get("attractions", [])
-        weather_info = state.get("weather_info", [])
-        hotel = state.get("hotel")
+        synthesis_input = PlannerSynthesisInput(
+            request=state["request"],
+            attractions=state.get("attractions", []),
+            weather_info=state.get("weather_info", []),
+            hotel=state.get("hotel"),
+        )
+        request = synthesis_input.request
+        attractions = synthesis_input.attractions
+        weather_info = synthesis_input.weather_info
+        hotel = synthesis_input.hotel
 
         start_date = datetime.strptime(request.start_date, "%Y-%m-%d")
         days: list[DayPlan] = []

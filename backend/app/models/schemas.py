@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import List, Optional, Union
+from datetime import datetime
+from typing import List, Literal, Optional, Union
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -18,6 +19,21 @@ class TripRequest(BaseModel):
     accommodation: str = Field(..., description="住宿偏好", examples=["经济型酒店"])
     preferences: List[str] = Field(default_factory=list, description="旅行偏好标签")
     free_text_input: Optional[str] = Field(default="", description="额外要求")
+
+    @field_validator("start_date", "end_date")
+    @classmethod
+    def validate_iso_date(cls, value: str) -> str:
+        """Validate date fields in YYYY-MM-DD format."""
+        datetime.strptime(value, "%Y-%m-%d")
+        return value
+
+    @field_validator("travel_days")
+    @classmethod
+    def validate_travel_days(cls, value: int) -> int:
+        """Validate travel day count is positive and practical."""
+        if value < 1:
+            raise ValueError("travel_days must be >= 1")
+        return value
 
 
 class POISearchRequest(BaseModel):
@@ -35,7 +51,10 @@ class RouteRequest(BaseModel):
     destination_address: str = Field(..., description="终点地址")
     origin_city: Optional[str] = Field(default=None, description="起点城市")
     destination_city: Optional[str] = Field(default=None, description="终点城市")
-    route_type: str = Field(default="walking", description="路线类型: walking/driving/transit")
+    route_type: Literal["walking", "driving", "transit"] = Field(
+        default="walking",
+        description="路线类型: walking/driving/transit",
+    )
 
 
 class Location(BaseModel):
@@ -204,3 +223,124 @@ class ErrorResponse(BaseModel):
     success: bool = Field(default=False, description="是否成功")
     message: str = Field(..., description="错误消息")
     error_code: Optional[str] = Field(default=None, description="错误代码")
+
+
+class POIDetail(BaseModel):
+    """POI detail payload."""
+
+    id: str = Field(..., description="POI ID")
+    name: str = Field(..., description="POI名称")
+    address: str = Field(default="", description="POI地址")
+    source: str = Field(default="amap", description="数据来源")
+
+
+class POIDetailResponse(BaseModel):
+    """POI detail response wrapper."""
+
+    success: bool = Field(..., description="是否成功")
+    message: str = Field(default="", description="消息")
+    data: POIDetail = Field(..., description="POI详情")
+
+
+class AttractionPhotoData(BaseModel):
+    """Attraction photo payload."""
+
+    name: str = Field(..., description="景点名称")
+    photo_url: Optional[str] = Field(default=None, description="图片链接")
+
+
+class AttractionPhotoResponse(BaseModel):
+    """Attraction photo response wrapper."""
+
+    success: bool = Field(..., description="是否成功")
+    message: str = Field(default="", description="消息")
+    data: AttractionPhotoData = Field(..., description="图片信息")
+
+
+class MapPOISearchInput(BaseModel):
+    """Map provider POI search input contract."""
+
+    keywords: str = Field(..., min_length=1, description="搜索关键词")
+    city: str = Field(..., min_length=1, description="城市")
+    citylimit: bool = Field(default=True, description="是否限制在城市范围内")
+
+
+class MapPOISearchOutput(BaseModel):
+    """Map provider POI search output contract."""
+
+    provider: str = Field(default="amap", description="provider 标识")
+    items: List[POIInfo] = Field(default_factory=list, description="POI列表")
+
+
+class MapWeatherInput(BaseModel):
+    """Map provider weather query input contract."""
+
+    city: str = Field(..., min_length=1, description="城市")
+
+
+class MapWeatherOutput(BaseModel):
+    """Map provider weather query output contract."""
+
+    provider: str = Field(default="amap", description="provider 标识")
+    items: List[WeatherInfo] = Field(default_factory=list, description="天气列表")
+
+
+class PhotoSearchInput(BaseModel):
+    """Photo provider input contract."""
+
+    query: str = Field(..., min_length=1, description="查询词")
+    per_page: int = Field(default=5, ge=1, le=30, description="数量")
+
+
+class PhotoItem(BaseModel):
+    """Photo item output contract."""
+
+    id: Optional[str] = Field(default=None, description="图片ID")
+    url: Optional[str] = Field(default=None, description="图片链接")
+    thumb: Optional[str] = Field(default=None, description="缩略图链接")
+    description: Optional[str] = Field(default=None, description="描述")
+    photographer: Optional[str] = Field(default=None, description="摄影师")
+
+
+class PhotoSearchOutput(BaseModel):
+    """Photo provider output contract."""
+
+    provider: str = Field(default="unsplash", description="provider 标识")
+    items: List[PhotoItem] = Field(default_factory=list, description="图片列表")
+
+
+class WorkerContext(BaseModel):
+    """Agent worker context contract."""
+
+    city: str = Field(..., min_length=1, description="目的地城市")
+    start_date: str = Field(..., description="开始日期")
+    end_date: str = Field(..., description="结束日期")
+    travel_days: int = Field(..., ge=1, le=30, description="旅行天数")
+    preferences: List[str] = Field(default_factory=list, description="偏好")
+
+
+class AttractionWorkerOutput(BaseModel):
+    """Attraction worker intermediate output contract."""
+
+    attractions: List[Attraction] = Field(default_factory=list, description="景点候选")
+
+
+class WeatherWorkerOutput(BaseModel):
+    """Weather worker intermediate output contract."""
+
+    weather_info: List[WeatherInfo] = Field(default_factory=list, description="天气候选")
+
+
+class HotelWorkerOutput(BaseModel):
+    """Hotel worker intermediate output contract."""
+
+    hotel: Hotel = Field(..., description="酒店候选")
+
+
+class PlannerSynthesisInput(BaseModel):
+    """Planner synthesis stage contract."""
+
+    request: TripRequest = Field(..., description="原始请求")
+    attractions: List[Attraction] = Field(default_factory=list, description="景点结果")
+    weather_info: List[WeatherInfo] = Field(default_factory=list, description="天气结果")
+    hotel: Optional[Hotel] = Field(default=None, description="酒店结果")
