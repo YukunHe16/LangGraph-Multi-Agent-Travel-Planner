@@ -528,11 +528,11 @@ Project1/
 |---|---:|---:|---:|
 | Phase A 基础迁移与脚手架 | 4 | 4 | 100% |
 | Phase B 可插拔工具层 | 5 | 5 | 100% |
-| Phase C 多 Agent 与 Prompt | 10 | 2 | 20% |
+| Phase C 多 Agent 与 Prompt | 10 | 3 | 30% |
 | Phase D RAG 知识库与导出 | 4 | 0 | 0% |
 | Phase E 前端改造与联调 | 3 | 0 | 0% |
 | Phase F 测试与发布准备 | 4 | 0 | 0% |
-| 合计 | 30 | 11 | 37% |
+| 合计 | 30 | 12 | 40% |
 
 ### 6.3 分阶段任务与验收标准
 
@@ -595,7 +595,7 @@ Project1/
   - 复用来源：`trip_planner_agent.py` 中 `ATTRACTION_AGENT_PROMPT` 与景点搜索流程。
   - 测试方法：`pytest -q tests/unit/test_attraction_agent.py`
 
-- [ ] C3：WeatherAgent 实现（从 hello agent 搬运）  
+- [x] C3：WeatherAgent 实现（从 hello agent 搬运）  
   - 验收：能够按城市/日期返回天气信息并生成可执行天气建议，输出可被 Planner 消费。
   - 复用来源：`trip_planner_agent.py` 中 `WEATHER_AGENT_PROMPT` 与天气查询流程。
   - 测试方法：`pytest -q tests/unit/test_weather_agent.py`

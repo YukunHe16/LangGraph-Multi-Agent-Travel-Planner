@@ -454,17 +454,20 @@ _planner_agent: PlannerAgent | None = None
 def get_planner_agent() -> PlannerAgent:
     """Get singleton planner agent instance with legacy workers.
 
-    AttractionAgent uses the new ``as_worker()`` protocol (C2+).
-    WeatherAgent / HotelAgent still use legacy wrappers until C3/C4.
+    AttractionAgent / WeatherAgent use the new ``as_worker()`` protocol (C2/C3+).
+    HotelAgent still uses legacy wrapper until C4.
     """
     global _planner_agent
     if _planner_agent is None:
         from app.agents.workers import AttractionAgent, HotelAgent, WeatherAgent
 
         attraction = AttractionAgent()
+        weather = WeatherAgent()
         _planner_agent = PlannerAgent(
-            workers={"attraction": attraction.as_worker()},
-            weather_agent=WeatherAgent(),
+            workers={
+                "attraction": attraction.as_worker(),
+                "weather": weather.as_worker(),
+            },
             hotel_agent=HotelAgent(),
         )
     return _planner_agent
