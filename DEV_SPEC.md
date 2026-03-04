@@ -526,13 +526,13 @@ Project1/
 
 | 阶段 | 总任务数 | 已完成 | 进度 |
 |---|---:|---:|---:|
-| Phase A 基础迁移与脚手架 | 4 | 3 | 75% |
+| Phase A 基础迁移与脚手架 | 4 | 4 | 100% |
 | Phase B 可插拔工具层 | 5 | 0 | 0% |
 | Phase C 多 Agent 与 Prompt | 10 | 0 | 0% |
 | Phase D RAG 知识库与导出 | 4 | 0 | 0% |
 | Phase E 前端改造与联调 | 3 | 0 | 0% |
 | Phase F 测试与发布准备 | 4 | 0 | 0% |
-| 合计 | 30 | 3 | 10% |
+| 合计 | 30 | 4 | 13.3% |
 
 ### 6.3 分阶段任务与验收标准
 
@@ -554,7 +554,7 @@ Project1/
   - 验收：所有关键 API 通过 pydantic 校验。
   - 测试方法：`pytest -q tests/unit/test_schema_contracts.py`
 
-- [ ] A4：接入 `.github/skills` 并验证 `dev-workflow` 可调用  
+- [x] A4：接入 `.github/skills` 并验证 `dev-workflow` 可调用  
   - 交付：skills 文件到位，文档链路可执行。
   - 验收：可执行一次 Stage1->Stage2 到等待确认。
   - 测试方法：手动演练 + 日志截图。
