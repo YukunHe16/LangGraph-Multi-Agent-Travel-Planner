@@ -528,11 +528,11 @@ Project1/
 |---|---:|---:|---:|
 | Phase A 基础迁移与脚手架 | 4 | 4 | 100% |
 | Phase B 可插拔工具层 | 5 | 5 | 100% |
-| Phase C 多 Agent 与 Prompt | 10 | 0 | 0% |
+| Phase C 多 Agent 与 Prompt | 10 | 1 | 10% |
 | Phase D RAG 知识库与导出 | 4 | 0 | 0% |
 | Phase E 前端改造与联调 | 3 | 0 | 0% |
 | Phase F 测试与发布准备 | 4 | 0 | 0% |
-| 合计 | 30 | 9 | 30% |
+| 合计 | 30 | 10 | 33% |
 
 ### 6.3 分阶段任务与验收标准
 
@@ -585,7 +585,7 @@ Project1/
 
 #### Phase C：多 Agent 与 Prompt
 
-- [ ] C1：PlannerAgent 编排核心实现（替代 Orchestrator）  
+- [x] C1：PlannerAgent 编排核心实现（替代 Orchestrator）  
   - 验收：`PlannerAgent` 可根据请求路由全部 6 个 worker（`Attraction/Weather/Hotel/Flight/Visa/Export`），支持默认规划/景点增强/多轮增量三种模式。
   - 复用来源：hello agent 中可复用的任务拆解思路与业务规则。
   - 测试方法：`pytest -q tests/integration/test_planner_routing.py tests/integration/test_planner_delta_routing.py`
