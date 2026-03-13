@@ -1,22 +1,15 @@
-"""RAG bridge query client — stub for Phase D2 implementation.
-
-This module will eventually call ``MODULAR-RAG-MCP-SERVER`` to perform
-semantic search over the Wikivoyage index.  For now it provides a
-``MCPRAGRetriever`` that returns curated stub data so that the
-AttractionAgent RAG integration (C8) can be tested end-to-end without
-the external server running.
-
-Phase D2 will replace the stub logic with real HTTP/MCP calls while
-keeping the same ``IRAGRetriever`` interface.
-"""
+"""RAG bridge query client with external bridge + stub fallback."""
 
 from __future__ import annotations
 
 import logging
 from datetime import datetime, timezone
+from typing import Any
 
+from app.config.settings import get_settings
 from app.models.schemas import RAGDocument, RAGSearchOutput
 from app.rag.retriever import IRAGRetriever
+from .external_bridge import BridgeQueryHit, ModularRAGBridge
 
 logger = logging.getLogger(__name__)
 
@@ -74,16 +67,22 @@ _STUB_DOCS: dict[str, list[dict]] = {
 class MCPRAGRetriever(IRAGRetriever):
     """Bridge retriever that queries the external MCP RAG server.
 
-    **Current status (C8 stub)**:
-    Returns curated stub data for selected Chinese/Japanese destinations.
-    Phase D2 will replace the body of ``search_docs`` with real MCP calls
-    while preserving this class's contract.
-
-    **Phase D2 plan**:
-    - Read ``rag.mcp_rag_project_root`` from settings
-    - Call the MCP RAG server's query endpoint via HTTP/subprocess
-    - Map response documents to ``RAGDocument`` schema
+    D2 implementation:
+    - Uses ``ModularRAGBridge`` to call the external repo's query stack.
+    - Falls back to curated stub documents when the bridge is unavailable,
+      preserving existing AttractionAgent tests and offline development.
     """
+
+    def __init__(
+        self,
+        *,
+        settings: Any | None = None,
+        bridge: ModularRAGBridge | None = None,
+        use_stub_fallback: bool = True,
+    ) -> None:
+        self._settings = settings or get_settings()
+        self._bridge = bridge
+        self._use_stub_fallback = use_stub_fallback
 
     @property
     def provider_name(self) -> str:
@@ -112,30 +111,62 @@ class MCPRAGRetriever(IRAGRetriever):
             limit,
             preferences,
         )
+        search_query = destination.strip()
+        if preferences:
+            search_query = f"{search_query} {' '.join(preferences)}".strip()
 
-        # --- Stub implementation (C8) ---
-        # Phase D2 will replace this block with real MCP RAG calls.
-        stub_entries = _STUB_DOCS.get(destination, [])
-
-        if not stub_entries:
-            logger.debug("No stub docs for destination=%s", destination)
-            return RAGSearchOutput(provider=self.provider_name, items=[])
-
-        now = datetime.now(timezone.utc).isoformat()
-        docs = [
-            RAGDocument(
-                page_title=entry["page_title"],
-                content=entry["content"],
-                source_url=entry["source_url"],
-                relevance_score=entry.get("relevance_score", 0.0),
-                retrieved_at=now,
+        try:
+            bridge = self._bridge or ModularRAGBridge(
+                repo_root=self._settings.rag.mcp_rag_project_root,
             )
-            for entry in stub_entries[:limit]
-        ]
+            hits = bridge.query(
+                query=search_query,
+                collection=self._settings.rag.index_name,
+                limit=limit,
+            )
+            docs = [_hit_to_document(hit) for hit in hits]
+            logger.info(
+                "MCPRAGRetriever bridge returned %d docs for destination=%s",
+                len(docs),
+                destination,
+            )
+            return RAGSearchOutput(provider=self.provider_name, items=docs)
+        except Exception as exc:
+            logger.warning("External RAG bridge query failed, using stub fallback: %s", exc)
+            if not self._use_stub_fallback:
+                raise
+            return _build_stub_output(destination, limit)
 
-        logger.info(
-            "MCPRAGRetriever returned %d docs for destination=%s",
-            len(docs),
-            destination,
+
+def _build_stub_output(destination: str, limit: int) -> RAGSearchOutput:
+    """Build curated fallback documents for offline/test environments."""
+    stub_entries = _STUB_DOCS.get(destination, [])
+    if not stub_entries:
+        logger.debug("No stub docs for destination=%s", destination)
+        return RAGSearchOutput(provider="mcp_rag", items=[])
+
+    now = datetime.now(timezone.utc).isoformat()
+    docs = [
+        RAGDocument(
+            page_title=entry["page_title"],
+            content=entry["content"],
+            source_url=entry["source_url"],
+            relevance_score=entry.get("relevance_score", 0.0),
+            retrieved_at=now,
         )
-        return RAGSearchOutput(provider=self.provider_name, items=docs)
+        for entry in stub_entries[:limit]
+    ]
+    return RAGSearchOutput(provider="mcp_rag", items=docs)
+
+
+def _hit_to_document(hit: BridgeQueryHit) -> RAGDocument:
+    """Map a bridge hit into Project1's ``RAGDocument`` schema."""
+    return RAGDocument(
+        page_title=hit.page_title,
+        content=hit.content,
+        source_url=hit.source_url,
+        relevance_score=hit.relevance_score,
+        page_id=hit.page_id,
+        revision_id=hit.revision_id,
+        retrieved_at=hit.retrieved_at,
+    )
