@@ -37,3 +37,13 @@ rag:
   integration_mode: external_mcp_rag
   mcp_rag_project_root: ""
   index_name: wikivoyage_cn_jp_attractions
+
+memory:
+  enabled: true
+  max_tokens: 3000
+  summary_trigger_tokens: 2600
+  summary_max_tokens: 700
+  k_recent_turns: 8
+  # Leave empty to auto-inherit from providers.llm_model (default: gpt-4o-mini).
+  # Set explicitly to override, e.g. "gpt-4o-mini" or "gpt-3.5-turbo".
+  summary_model: ""

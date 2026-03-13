@@ -528,11 +528,11 @@ Project1/
 |---|---:|---:|---:|
 | Phase A 基础迁移与脚手架 | 4 | 4 | 100% |
 | Phase B 可插拔工具层 | 5 | 5 | 100% |
-| Phase C 多 Agent 与 Prompt | 10 | 9 | 90% |
+| Phase C 多 Agent 与 Prompt | 10 | 10 | 100% |
 | Phase D RAG 知识库与导出 | 4 | 0 | 0% |
 | Phase E 前端改造与联调 | 3 | 0 | 0% |
 | Phase F 测试与发布准备 | 4 | 0 | 0% |
-| 合计 | 30 | 18 | 60% |
+| 合计 | 30 | 19 | 63% |
 
 ### 6.3 分阶段任务与验收标准
 
@@ -627,7 +627,7 @@ Project1/
   - 复用来源：`Attraction/Weather/Hotel` 允许直接照搬 `trip_planner_agent.py` 既有提示词；`Planner` 在 `PLANNER_AGENT_PROMPT` 基线上做编排增强。
   - 测试方法：`pytest -q tests/unit/test_prompt_regression.py`
 
-- [ ] C10：短期记忆接入（ConversationBufferSummaryMemory）  
+- [x] C10：短期记忆接入（ConversationBufferSummaryMemory）  
   - 验收：实现 `max_tokens` 内保留原文、超限自动摘要；`PlannerAgent` 能稳定读取 recent+summary 并保持多轮决策一致。
   - 复用来源：LangChain `ConversationBufferSummaryMemory` 组件，结合 LangGraph 会话状态管理。
   - 测试方法：`pytest -q tests/unit/test_memory_manager.py tests/integration/test_planner_memory_flow.py`

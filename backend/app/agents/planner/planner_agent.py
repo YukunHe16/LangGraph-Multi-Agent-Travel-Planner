@@ -77,6 +77,11 @@ class PlannerState(TypedDict, total=False):
     previous_plan: Optional[dict]
     user_delta: Optional[str]
 
+    # --- memory context (C10) ---
+    recent_buffer: Optional[str]
+    running_summary: Optional[str]
+    session_id: Optional[str]
+
     # --- routing ---
     workers_to_run: list[str]
     workers_ran: list[str]
@@ -125,6 +130,7 @@ class PlannerAgent:
         workers: dict[str, WorkerFn] | None = None,
         *,
         prompt: str = PLANNER_AGENT_PROMPT,
+        memory: Any | None = None,
         # Legacy kwargs for backward compat with A2 dataclass signature
         attraction_agent: Any = None,
         weather_agent: Any = None,
@@ -134,6 +140,7 @@ class PlannerAgent:
         export_worker: WorkerFn | None = None,
     ) -> None:
         self.prompt = prompt
+        self._memory = memory  # MemoryManager instance or None
 
         # Build workers dict ------------------------------------------------
         if workers is not None:
@@ -435,6 +442,7 @@ class PlannerAgent:
         mode: PlannerMode | str = PlannerMode.DEFAULT,
         previous_plan: dict | None = None,
         user_delta: str | None = None,
+        session_id: str | None = None,
     ) -> PlannerState:
         """Run the planner graph with explicit mode and optional delta.
 
@@ -443,18 +451,44 @@ class PlannerAgent:
             mode: Planning mode (default / attraction_enhanced / delta / export).
             previous_plan: Previous plan dict for delta mode.
             user_delta: User modification description for delta mode.
+            session_id: Conversation session ID for memory load/save.
 
         Returns:
             Full ``PlannerState`` dict including routing metadata.
         """
         mode_value = mode.value if isinstance(mode, PlannerMode) else str(mode)
+
+        # --- Load memory context (C10) ---
+        recent_buffer = ""
+        running_summary = ""
+        if session_id and self._memory:
+            mem_ctx = self._memory.load(session_id)
+            recent_buffer = mem_ctx.get("recent_buffer", "")
+            running_summary = mem_ctx.get("running_summary", "")
+
         initial: PlannerState = {
             "request": request.model_dump(),
             "mode": mode_value,
             "previous_plan": previous_plan,
             "user_delta": user_delta,
+            "recent_buffer": recent_buffer,
+            "running_summary": running_summary,
+            "session_id": session_id,
         }
-        return self._graph.invoke(initial)
+        result = self._graph.invoke(initial)
+
+        # --- Save memory after planning (C10) ---
+        if session_id and self._memory:
+            user_msg = user_delta or request.free_text_input or f"Plan trip to {request.city}"
+            # Build a compact assistant summary for memory
+            plan = result.get("trip_plan")
+            if isinstance(plan, dict):
+                assistant_msg = f"Generated {len(plan.get('days', []))}-day plan for {plan.get('city', request.city)}"
+            else:
+                assistant_msg = f"Planned trip to {request.city}"
+            self._memory.save(session_id, user_msg, assistant_msg)
+
+        return result
 
     def plan_trip(self, request: TripRequest) -> TripPlan:
         """Backward-compatible entry: generate trip plan via default mode.
@@ -772,6 +806,7 @@ def get_planner_agent() -> PlannerAgent:
     """Get singleton planner agent instance with legacy workers.
 
     AttractionAgent / WeatherAgent / HotelAgent use ``as_worker()`` protocol (C2/C3/C4+).
+    Memory integration (C10): injects MemoryManager when ``memory.enabled`` is True.
     """
     global _planner_agent
     if _planner_agent is None:
@@ -782,12 +817,21 @@ def get_planner_agent() -> PlannerAgent:
             VisaAgent,
             WeatherAgent,
         )
+        from app.config.settings import get_settings
 
         attraction = AttractionAgent()
         weather = WeatherAgent()
         hotel = HotelAgent()
         flight = FlightAgent()
         visa = VisaAgent()
+
+        # C10: create memory manager if enabled
+        memory = None
+        settings = get_settings()
+        if getattr(getattr(settings, "memory", None), "enabled", False):
+            from app.agents.memory import MemoryManager
+            memory = MemoryManager.from_settings(settings)
+
         _planner_agent = PlannerAgent(
             workers={
                 "attraction": attraction.as_worker(),
@@ -796,6 +840,7 @@ def get_planner_agent() -> PlannerAgent:
                 "flight": flight.as_worker(),
                 "visa": visa.as_worker(),
             },
+            memory=memory,
         )
     return _planner_agent
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from functools import lru_cache
 from pathlib import Path
 
@@ -66,6 +67,17 @@ class RAGSettings(BaseModel):
     index_name: str = "wikivoyage_cn_jp_attractions"
 
 
+class MemorySettings(BaseModel):
+    """Short-term conversation memory configuration (§3.6)."""
+
+    enabled: bool = True
+    max_tokens: int = 3000
+    summary_trigger_tokens: int = 2600
+    summary_max_tokens: int = 700
+    k_recent_turns: int = 8
+    summary_model: str = ""
+
+
 class Settings(BaseModel):
     """Root settings model loaded from YAML with sane defaults."""
 
@@ -73,6 +85,7 @@ class Settings(BaseModel):
     planner: PlannerSettings = Field(default_factory=PlannerSettings)
     providers: ProviderSettings = Field(default_factory=ProviderSettings)
     rag: RAGSettings = Field(default_factory=RAGSettings)
+    memory: MemorySettings = Field(default_factory=MemorySettings)
 
     @classmethod
     def from_yaml(cls, path: Path) -> "Settings":
@@ -86,8 +99,50 @@ class Settings(BaseModel):
         return cls.model_validate(data)
 
 
+def _load_dotenv() -> None:
+    """Load .env file from backend/ root into os.environ (best-effort)."""
+    env_path = Path(__file__).resolve().parents[2] / ".env"
+    if not env_path.exists():
+        return
+    with env_path.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, _, value = line.partition("=")
+            key = key.strip()
+            value = value.strip()
+            if not key:
+                continue
+            os.environ.setdefault(key, value)
+
+
+def _overlay_env(settings: Settings) -> Settings:
+    """Overlay environment variables onto settings (API keys only)."""
+    env_map = {
+        "AMAP_API_KEY": "amap_api_key",
+        "UNSPLASH_ACCESS_KEY": "unsplash_access_key",
+        "GOOGLE_MAPS_API_KEY": "google_maps_api_key",
+        "GOOGLE_PLACES_API_KEY": "google_places_api_key",
+        "AMADEUS_CLIENT_ID": "amadeus_client_id",
+        "AMADEUS_CLIENT_SECRET": "amadeus_client_secret",
+        "SHERPA_API_KEY": "sherpa_api_key",
+    }
+    for env_var, attr in env_map.items():
+        val = os.environ.get(env_var, "")
+        if val and not getattr(settings.providers, attr, ""):
+            setattr(settings.providers, attr, val)
+    return settings
+
+
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
-    """Load and cache application settings from backend/config/settings.yaml."""
+    """Load and cache application settings from backend/config/settings.yaml.
+
+    Also loads ``backend/.env`` into ``os.environ`` and overlays API keys
+    onto provider settings when they are not already set in the YAML.
+    """
+    _load_dotenv()
     settings_path = Path(__file__).resolve().parents[2] / "config" / "settings.yaml"
-    return Settings.from_yaml(settings_path)
+    settings = Settings.from_yaml(settings_path)
+    return _overlay_env(settings)
