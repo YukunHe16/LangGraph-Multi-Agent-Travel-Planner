@@ -63,8 +63,32 @@ class RAGSettings(BaseModel):
     enabled: bool = False
     source: str = "wikivoyage_cn_jp"
     integration_mode: str = "external_mcp_rag"
-    mcp_rag_project_root: str = ""
+    mcp_rag_project_root: str = "/Users/yukun/MODULAR-RAG-MCP-SERVER"
+    crawl_seed: str = "https://www.wikivoyage.org/"
+    allowed_countries: list[str] = Field(default_factory=lambda: ["China", "Japan"])
     index_name: str = "wikivoyage_cn_jp_attractions"
+    wikivoyage: "RAGWikivoyageSettings" = Field(default_factory=lambda: RAGWikivoyageSettings())
+
+
+class RAGWikivoyageSettings(BaseModel):
+    """Wikivoyage dump ingestion settings for Phase D."""
+
+    bootstrap_source: str = "dump"
+    dump_url: str = "https://dumps.wikimedia.org/enwikivoyage/latest/enwikivoyage-latest-pages-articles.xml.bz2"
+    update_mode: str = "full_rebuild_only"
+    category_roots: list[str] = Field(
+        default_factory=lambda: [
+            "China",
+            "Cities in China",
+            "Regions of China",
+            "Japan",
+            "Cities in Japan",
+            "Regions of Japan",
+        ]
+    )
+    chunk_size_chars: int = 900
+    chunk_overlap_chars: int = 120
+    min_cleaned_chars: int = 80
 
 
 class MemorySettings(BaseModel):

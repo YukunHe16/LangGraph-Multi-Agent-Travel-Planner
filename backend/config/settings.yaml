@@ -35,8 +35,24 @@ rag:
   enabled: true
   source: wikivoyage_cn_jp
   integration_mode: external_mcp_rag
-  mcp_rag_project_root: ""
+  mcp_rag_project_root: "/Users/yukun/MODULAR-RAG-MCP-SERVER"
+  crawl_seed: "https://www.wikivoyage.org/"
+  allowed_countries: ["China", "Japan"]
   index_name: wikivoyage_cn_jp_attractions
+  wikivoyage:
+    bootstrap_source: dump
+    dump_url: "https://dumps.wikimedia.org/enwikivoyage/latest/enwikivoyage-latest-pages-articles.xml.bz2"
+    update_mode: full_rebuild_only
+    category_roots:
+      - "China"
+      - "Cities in China"
+      - "Regions of China"
+      - "Japan"
+      - "Cities in Japan"
+      - "Regions of Japan"
+    chunk_size_chars: 900
+    chunk_overlap_chars: 120
+    min_cleaned_chars: 80
 
 memory:
   enabled: true

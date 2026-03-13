@@ -529,10 +529,10 @@ Project1/
 | Phase A 基础迁移与脚手架 | 4 | 4 | 100% |
 | Phase B 可插拔工具层 | 5 | 5 | 100% |
 | Phase C 多 Agent 与 Prompt | 10 | 10 | 100% |
-| Phase D RAG 知识库与导出 | 4 | 0 | 0% |
+| Phase D RAG 知识库与导出 | 4 | 1 | 25% |
 | Phase E 前端改造与联调 | 3 | 0 | 0% |
 | Phase F 测试与发布准备 | 4 | 0 | 0% |
-| 合计 | 30 | 19 | 63% |
+| 合计 | 30 | 20 | 67% |
 
 ### 6.3 分阶段任务与验收标准
 
@@ -634,7 +634,7 @@ Project1/
 
 #### Phase D：RAG 知识库与导出
 
-- [ ] D1：Wikivoyage Dump 基线导入与清洗流水线（Project1 内）  
+- [x] D1：Wikivoyage Dump 基线导入与清洗流水线（Project1 内）  
   - 验收：使用固定 `latest` dump_url（`https://dumps.wikimedia.org/enwikivoyage/latest/enwikivoyage-latest-pages-articles.xml.bz2`）批量导入中国/日本旅游页面并完成清洗、切分、入索引编排；文档包含 `page_title/page_id/revision_id/source_url/retrieved_at`。
   - 测试方法：`pytest -q tests/integration/test_wikivoyage_ingestion.py`
 
