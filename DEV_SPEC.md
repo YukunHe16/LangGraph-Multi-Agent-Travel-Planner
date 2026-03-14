@@ -530,9 +530,9 @@ Project1/
 | Phase B 可插拔工具层 | 5 | 5 | 100% |
 | Phase C 多 Agent 与 Prompt | 10 | 10 | 100% |
 | Phase D RAG 知识库与导出 | 4 | 4 | 100% |
-| Phase E 前端改造与联调 | 3 | 2 | 67% |
+| Phase E 前端改造与联调 | 3 | 3 | 100% |
 | Phase F 测试与发布准备 | 4 | 0 | 0% |
-| 合计 | 30 | 25 | 83% |
+| 合计 | 30 | 26 | 87% |
 
 ### 6.3 分阶段任务与验收标准
 
@@ -663,7 +663,7 @@ Project1/
   - 复用来源：hello agent 当前样式体系，进行最小改造。
   - 测试方法：视觉走查 checklist。
 
-- [ ] E3：端到端联调  
+- [x] E3：端到端联调  
   - 验收：3 条核心业务流全通（国内、跨国、Wikivoyage RAG 景点增强）。
   - 复用来源：hello agent 既有联调流程与关键页面跳转逻辑。
   - 测试方法：`pytest -q tests/e2e/test_user_journeys.py`
