@@ -145,4 +145,5 @@ Environment variables (optional overrides for API keys):
 - API reference: [`docs/API_REFERENCE.md`](docs/API_REFERENCE.md)
 - Prompt reference: [`docs/PROMPT_REFERENCE.md`](docs/PROMPT_REFERENCE.md)
 - New environment reproduction runbook: [`docs/NEW_ENV_REPRO.md`](docs/NEW_ENV_REPRO.md)
-
+- Release checklist: [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md)
+- Changelog: [`CHANGELOG.md`](CHANGELOG.md)
