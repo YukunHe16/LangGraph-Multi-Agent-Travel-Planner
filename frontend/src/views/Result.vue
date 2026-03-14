@@ -26,6 +26,9 @@
               <a-menu-item key="pdf" @click="exportAsPDF">
                 📄 导出为PDF
               </a-menu-item>
+              <a-menu-item key="google_calendar" @click="exportToGoogleCalendar">
+                🗓️ 导出到 Google Calendar
+              </a-menu-item>
             </a-menu>
           </template>
           <a-button type="default">
@@ -488,6 +491,92 @@ const handleImageError = (event: Event) => {
   const img = event.target as HTMLImageElement
   // 使用灰色占位图
   img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect width="400" height="300" fill="%23f0f0f0"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="18" fill="%23999"%3E图片加载失败%3C/text%3E%3C/svg%3E'
+}
+
+const formatCalendarDateTime = (date: string, hour: number, minute: number): string => {
+  const hh = String(hour).padStart(2, '0')
+  const mm = String(minute).padStart(2, '0')
+  return `${date.replace(/-/g, '')}T${hh}${mm}00`
+}
+
+const buildGoogleCalendarUrl = (params: {
+  title: string
+  details: string
+  location: string
+  start: string
+  end: string
+}): string => {
+  const query = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: params.title,
+    details: params.details,
+    location: params.location,
+    dates: `${params.start}/${params.end}`
+  })
+  return `https://calendar.google.com/calendar/render?${query.toString()}`
+}
+
+const exportToGoogleCalendar = () => {
+  if (!tripPlan.value) {
+    message.warning('暂无可导出的行程数据')
+    return
+  }
+
+  const links: string[] = []
+
+  tripPlan.value.days.forEach((day) => {
+    if (!day.attractions.length) {
+      const url = buildGoogleCalendarUrl({
+        title: `第${day.day_index + 1}天 · 行程安排`,
+        details: day.description,
+        location: day.hotel?.address || day.accommodation || tripPlan.value?.city || '',
+        start: formatCalendarDateTime(day.date, 9, 0),
+        end: formatCalendarDateTime(day.date, 18, 0)
+      })
+      links.push(url)
+      return
+    }
+
+    let hour = 9
+    let minute = 0
+    day.attractions.forEach((attraction) => {
+      const duration = Math.max(30, Number(attraction.visit_duration || 90))
+      const startMinutes = hour * 60 + minute
+      const endMinutes = startMinutes + duration
+      const endHour = Math.floor(endMinutes / 60)
+      const endMinute = endMinutes % 60
+
+      const url = buildGoogleCalendarUrl({
+        title: `第${day.day_index + 1}天 · ${attraction.name}`,
+        details: `${day.description}\n${attraction.description}`,
+        location: attraction.address || '',
+        start: formatCalendarDateTime(day.date, hour, minute),
+        end: formatCalendarDateTime(day.date, endHour, endMinute)
+      })
+      links.push(url)
+
+      const transitEnd = endMinutes + 30
+      hour = Math.floor(transitEnd / 60)
+      minute = transitEnd % 60
+    })
+  })
+
+  if (!links.length) {
+    message.warning('未生成可导出的日历事件')
+    return
+  }
+
+  window.open(links[0], '_blank', 'noopener,noreferrer')
+
+  const linkText = links.map((url, idx) => `${idx + 1}. ${url}`).join('\n')
+  const blob = new Blob([linkText], { type: 'text/plain;charset=utf-8' })
+  const download = document.createElement('a')
+  download.href = URL.createObjectURL(blob)
+  download.download = `google_calendar_links_${tripPlan.value.city}_${Date.now()}.txt`
+  download.click()
+  URL.revokeObjectURL(download.href)
+
+  message.success(`已打开 Google Calendar（第1条），并导出 ${links.length} 条事件链接`)
 }
 
 
@@ -1389,4 +1478,3 @@ const drawRoutes = (AMap: any, attractions: any[]) => {
   }
 }
 </style>
-

@@ -530,9 +530,9 @@ Project1/
 | Phase B 可插拔工具层 | 5 | 5 | 100% |
 | Phase C 多 Agent 与 Prompt | 10 | 10 | 100% |
 | Phase D RAG 知识库与导出 | 4 | 4 | 100% |
-| Phase E 前端改造与联调 | 3 | 0 | 0% |
+| Phase E 前端改造与联调 | 3 | 1 | 33% |
 | Phase F 测试与发布准备 | 4 | 0 | 0% |
-| 合计 | 30 | 23 | 77% |
+| 合计 | 30 | 24 | 80% |
 
 ### 6.3 分阶段任务与验收标准
 
@@ -653,7 +653,7 @@ Project1/
 
 #### Phase E：前端改造与联调
 
-- [ ] E1：前端新增字段（国籍、导出 Google Calendar）  
+- [x] E1：前端新增字段（国籍、导出 Google Calendar）  
   - 验收：表单项和交互完整，类型校验通过。
   - 复用来源：hello agent 现有表单、结果页和行程编辑组件。
   - 测试方法：`npm run test -- nationality export`

@@ -87,6 +87,24 @@
               </a-form-item>
             </a-col>
           </a-row>
+
+          <a-row :gutter="24">
+            <a-col :span="8">
+              <a-form-item name="nationality" :rules="[{ required: true, message: '请选择国籍' }]">
+                <template #label>
+                  <span class="form-label">国籍</span>
+                </template>
+                <a-select v-model:value="formData.nationality" size="large" class="custom-select">
+                  <a-select-option value="CN">🇨🇳 中国（CN）</a-select-option>
+                  <a-select-option value="US">🇺🇸 美国（US）</a-select-option>
+                  <a-select-option value="JP">🇯🇵 日本（JP）</a-select-option>
+                  <a-select-option value="SG">🇸🇬 新加坡（SG）</a-select-option>
+                  <a-select-option value="GB">🇬🇧 英国（GB）</a-select-option>
+                  <a-select-option value="AU">🇦🇺 澳大利亚（AU）</a-select-option>
+                </a-select>
+              </a-form-item>
+            </a-col>
+          </a-row>
         </div>
 
         <!-- 第二步:偏好设置 -->
@@ -138,6 +156,20 @@
                     <a-checkbox value="休闲" class="preference-tag">☕ 休闲</a-checkbox>
                   </a-checkbox-group>
                 </div>
+              </a-form-item>
+            </a-col>
+          </a-row>
+
+          <a-row :gutter="24">
+            <a-col :span="24">
+              <a-form-item name="export_to_google_calendar">
+                <template #label>
+                  <span class="form-label">导出偏好</span>
+                </template>
+                <a-switch v-model:checked="formData.export_to_google_calendar" />
+                <span style="margin-left: 12px; color: #666;">
+                  生成结果后支持一键导出到 Google Calendar
+                </span>
               </a-form-item>
             </a-col>
           </a-row>
@@ -225,10 +257,12 @@ const formData = reactive<HomeFormData>({
   city: '',
   start_date: null,
   end_date: null,
+  nationality: 'CN',
   travel_days: 1,
   transportation: '公共交通',
   accommodation: '经济型酒店',
   preferences: [],
+  export_to_google_calendar: false,
   free_text_input: ''
 })
 
@@ -277,15 +311,20 @@ const handleSubmit = async () => {
   }, 500)
 
   try {
+    const userNote = formData.free_text_input.trim()
+    const exportNote = formData.export_to_google_calendar ? '导出偏好: Google Calendar' : ''
+
     const requestData: TripFormData = {
       city: formData.city,
       start_date: formData.start_date.format('YYYY-MM-DD'),
       end_date: formData.end_date.format('YYYY-MM-DD'),
+      nationality: formData.nationality,
       travel_days: formData.travel_days,
       transportation: formData.transportation,
       accommodation: formData.accommodation,
       preferences: formData.preferences,
-      free_text_input: formData.free_text_input
+      export_to_google_calendar: formData.export_to_google_calendar,
+      free_text_input: [userNote, exportNote].filter(Boolean).join('\n')
     }
 
     const response = await generateTripPlan(requestData)
@@ -297,6 +336,7 @@ const handleSubmit = async () => {
     if (response.success && response.data) {
       // 保存到sessionStorage
       sessionStorage.setItem('tripPlan', JSON.stringify(response.data))
+      sessionStorage.setItem('exportToGoogleCalendar', String(formData.export_to_google_calendar))
 
       message.success('旅行计划生成成功!')
 
@@ -651,4 +691,3 @@ const handleSubmit = async () => {
   }
 }
 </style>
-

@@ -80,10 +80,12 @@ export interface TripFormData {
   city: string
   start_date: string
   end_date: string
+  nationality: string
   travel_days: number
   transportation: string
   accommodation: string
   preferences: string[]
+  export_to_google_calendar: boolean
   free_text_input: string
 }
 
@@ -92,4 +94,3 @@ export interface TripPlanResponse {
   message: string
   data?: TripPlan
 }
-

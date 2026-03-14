@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node scripts/e1-check.mjs"
   },
   "dependencies": {
     "@amap/amap-jsapi-loader": "^1.0.1",
