@@ -406,6 +406,68 @@ class VisaRequirementsOutput(BaseModel):
     requirements: List[VisaRequirement] = Field(default_factory=list, description="签证要求列表")
 
 
+class CalendarEventInput(BaseModel):
+    """Normalized calendar event input for export providers."""
+
+    summary: str = Field(..., min_length=1, description="事件标题")
+    description: str = Field(default="", description="事件描述")
+    start_at: str = Field(..., description="开始时间 ISO 8601")
+    end_at: str = Field(..., description="结束时间 ISO 8601")
+    timezone: str = Field(default="Asia/Shanghai", description="事件时区")
+    location: str = Field(default="", description="地点文本")
+    latitude: Optional[float] = Field(default=None, description="纬度")
+    longitude: Optional[float] = Field(default=None, description="经度")
+    reminder_minutes: List[int] = Field(default_factory=lambda: [30], description="提醒分钟数")
+    source_url: Optional[str] = Field(default=None, description="来源链接")
+
+    @field_validator("start_at", "end_at")
+    @classmethod
+    def validate_iso_datetime(cls, value: str) -> str:
+        """Validate ISO 8601 datetime fields."""
+        datetime.fromisoformat(value.replace("Z", "+00:00"))
+        return value
+
+
+class CalendarEventRecord(BaseModel):
+    """A created or drafted calendar event."""
+
+    event_id: str = Field(..., description="事件 ID")
+    html_link: Optional[str] = Field(default=None, description="Google Calendar 事件链接")
+    status: str = Field(default="confirmed", description="事件状态")
+    summary: str = Field(..., description="事件标题")
+    start_at: str = Field(..., description="开始时间 ISO 8601")
+    end_at: str = Field(..., description="结束时间 ISO 8601")
+    timezone: str = Field(default="Asia/Shanghai", description="事件时区")
+    location: str = Field(default="", description="地点文本")
+    latitude: Optional[float] = Field(default=None, description="纬度")
+    longitude: Optional[float] = Field(default=None, description="经度")
+
+
+ExportTarget = Literal["google_calendar", "pdf", "image"]
+
+
+class ExportArtifact(BaseModel):
+    """File/link payload returned by non-calendar export targets."""
+
+    kind: Literal["file", "link"] = Field(default="file", description="导出物类型")
+    filename: str = Field(..., description="导出文件名")
+    mime_type: str = Field(..., description="MIME 类型")
+    content_base64: Optional[str] = Field(default=None, description="Base64 文件内容")
+    download_url: Optional[str] = Field(default=None, description="可下载链接")
+
+
+class CalendarExportOutput(BaseModel):
+    """Unified export output contract (calendar/pdf/image)."""
+
+    provider: str = Field(default="google_calendar", description="provider 标识")
+    target: ExportTarget = Field(default="google_calendar", description="导出目标")
+    calendar_id: str = Field(default="primary", description="目标日历 ID（仅日历导出）")
+    event_count: int = Field(default=0, description="导出事件数")
+    events: List[CalendarEventRecord] = Field(default_factory=list, description="事件列表")
+    artifacts: List[ExportArtifact] = Field(default_factory=list, description="文件/链接导出物")
+    warnings: List[str] = Field(default_factory=list, description="告警信息")
+
+
 class WorkerContext(BaseModel):
     """Agent worker context contract."""
 

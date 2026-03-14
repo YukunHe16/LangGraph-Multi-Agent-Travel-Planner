@@ -529,10 +529,10 @@ Project1/
 | Phase A 基础迁移与脚手架 | 4 | 4 | 100% |
 | Phase B 可插拔工具层 | 5 | 5 | 100% |
 | Phase C 多 Agent 与 Prompt | 10 | 10 | 100% |
-| Phase D RAG 知识库与导出 | 4 | 2 | 50% |
+| Phase D RAG 知识库与导出 | 4 | 4 | 100% |
 | Phase E 前端改造与联调 | 3 | 0 | 0% |
 | Phase F 测试与发布准备 | 4 | 0 | 0% |
-| 合计 | 30 | 21 | 70% |
+| 合计 | 30 | 23 | 77% |
 
 ### 6.3 分阶段任务与验收标准
 
@@ -642,11 +642,11 @@ Project1/
   - 验收：支持按目的地检索景点文档，支持手动/定时触发全量重建；通过桥接层调用 `MODULAR-RAG-MCP-SERVER` 现有能力且不修改其源码。
   - 测试方法：`pytest -q tests/integration/test_rag_retrieval_service.py`
 
-- [ ] D3：Google Calendar Export 实现  
+- [x] D3：Google Calendar Export 实现  
   - 验收：可创建日历事件并包含时间地点提醒。
   - 测试方法：`pytest -q tests/integration/test_google_calendar_export.py`
 
-- [ ] D4：与 PDF/Image 导出统一导出网关  
+- [x] D4：与 PDF/Image 导出统一导出网关  
   - 验收：同一导出接口支持 3 种目标。
   - 复用来源：hello agent 中现有 PDF/图片导出代码。
   - 测试方法：`pytest -q tests/unit/test_export_gateway.py`
