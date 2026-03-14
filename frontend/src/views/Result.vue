@@ -296,7 +296,7 @@
         <div style="font-size: 80px;">🗺️</div>
       </template>
       <template #description>
-        <span style="color: #999;">暂无旅行计划数据,请先创建行程</span>
+        <span style="color: #6f7d88;">暂无旅行计划数据,请先创建行程</span>
       </template>
       <a-button type="primary" @click="goBack">返回首页创建行程</a-button>
     </a-empty>
@@ -462,11 +462,11 @@ const getAttractionImage = (name: string, index: number): string => {
 
   // 返回一个纯色占位图(避免跨域问题)
   const colors = [
-    { start: '#667eea', end: '#764ba2' },
-    { start: '#f093fb', end: '#f5576c' },
-    { start: '#4facfe', end: '#00f2fe' },
-    { start: '#43e97b', end: '#38f9d7' },
-    { start: '#fa709a', end: '#fee140' }
+    { start: '#6f8190', end: '#5d6f7d' },
+    { start: '#8a9aa3', end: '#74848f' },
+    { start: '#7c8f97', end: '#667981' },
+    { start: '#94a6ae', end: '#7e9098' },
+    { start: '#a1b0b7', end: '#8b9aa1' }
   ]
   const colorIndex = index % colors.length
   const { start, end } = colors[colorIndex]
@@ -594,7 +594,7 @@ const exportAsImage = async () => {
     // 创建一个独立的容器
     const exportContainer = document.createElement('div')
     exportContainer.style.width = element.offsetWidth + 'px'
-    exportContainer.style.backgroundColor = '#f5f7fa'
+    exportContainer.style.backgroundColor = '#eef2f4'
     exportContainer.style.padding = '20px'
 
     // 复制所有内容
@@ -621,7 +621,7 @@ const exportAsImage = async () => {
         cardEl.className = '' // 移除所有类
         cardEl.style.setProperty('background-color', '#ffffff')
         cardEl.style.setProperty('border-radius', '12px')
-        cardEl.style.setProperty('box-shadow', '0 4px 12px rgba(0, 0, 0, 0.1)')
+        cardEl.style.setProperty('box-shadow', '0 4px 12px rgba(43, 59, 71, 0.14)')
         cardEl.style.setProperty('margin-bottom', '20px')
         cardEl.style.setProperty('overflow', 'hidden')
       } catch (err) {
@@ -634,7 +634,7 @@ const exportAsImage = async () => {
     cardHeads.forEach((head) => {
       const headEl = head as HTMLElement
       try {
-        headEl.style.setProperty('background-color', '#667eea')
+        headEl.style.setProperty('background-color', '#5f7382')
         headEl.style.setProperty('color', '#ffffff')
         headEl.style.setProperty('padding', '16px 24px')
         headEl.style.setProperty('font-size', '18px')
@@ -657,22 +657,22 @@ const exportAsImage = async () => {
     hotelCards.forEach((card) => {
       const head = card.querySelector('.ant-card-head') as HTMLElement
       if (head) {
-        head.style.setProperty('background-color', '#1976d2')
+        head.style.setProperty('background-color', '#647f8e')
       }
-      (card as HTMLElement).style.setProperty('background-color', '#e3f2fd')
+      (card as HTMLElement).style.setProperty('background-color', '#e9eff3')
     })
 
     // 处理天气卡片
     const weatherCards = exportContainer.querySelectorAll('.weather-card')
     weatherCards.forEach((card) => {
-      (card as HTMLElement).style.setProperty('background-color', '#e0f7fa')
+      (card as HTMLElement).style.setProperty('background-color', '#edf3f5')
     })
 
     // 处理预算总计
     const budgetTotal = exportContainer.querySelector('.budget-total')
     if (budgetTotal) {
       const el = budgetTotal as HTMLElement
-      el.style.setProperty('background-color', '#667eea')
+      el.style.setProperty('background-color', '#5f7382')
       el.style.setProperty('color', '#ffffff')
       el.style.setProperty('padding', '20px')
       el.style.setProperty('border-radius', '12px')
@@ -683,7 +683,7 @@ const exportAsImage = async () => {
     const budgetItems = exportContainer.querySelectorAll('.budget-item')
     budgetItems.forEach((item) => {
       const el = item as HTMLElement
-      el.style.setProperty('background-color', '#f5f7fa')
+      el.style.setProperty('background-color', '#f3f6f8')
       el.style.setProperty('padding', '16px')
       el.style.setProperty('border-radius', '8px')
       el.style.setProperty('margin-bottom', '12px')
@@ -695,7 +695,7 @@ const exportAsImage = async () => {
     document.body.appendChild(exportContainer)
 
     const canvas = await html2canvas(exportContainer, {
-      backgroundColor: '#f5f7fa',
+      backgroundColor: '#eef2f4',
       scale: 2,
       logging: false,
       useCORS: true,
@@ -731,7 +731,7 @@ const exportAsPDF = async () => {
     // 创建一个独立的容器
     const exportContainer = document.createElement('div')
     exportContainer.style.width = element.offsetWidth + 'px'
-    exportContainer.style.backgroundColor = '#f5f7fa'
+    exportContainer.style.backgroundColor = '#eef2f4'
     exportContainer.style.padding = '20px'
 
     // 复制所有内容
@@ -758,7 +758,7 @@ const exportAsPDF = async () => {
         cardEl.className = ''
         cardEl.style.setProperty('background-color', '#ffffff')
         cardEl.style.setProperty('border-radius', '12px')
-        cardEl.style.setProperty('box-shadow', '0 4px 12px rgba(0, 0, 0, 0.1)')
+        cardEl.style.setProperty('box-shadow', '0 4px 12px rgba(43, 59, 71, 0.14)')
         cardEl.style.setProperty('margin-bottom', '20px')
         cardEl.style.setProperty('overflow', 'hidden')
       } catch (err) {
@@ -771,7 +771,7 @@ const exportAsPDF = async () => {
     cardHeads.forEach((head) => {
       const headEl = head as HTMLElement
       try {
-        headEl.style.setProperty('background-color', '#667eea')
+        headEl.style.setProperty('background-color', '#5f7382')
         headEl.style.setProperty('color', '#ffffff')
         headEl.style.setProperty('padding', '16px 24px')
         headEl.style.setProperty('font-size', '18px')
@@ -794,22 +794,22 @@ const exportAsPDF = async () => {
     hotelCards.forEach((card) => {
       const head = card.querySelector('.ant-card-head') as HTMLElement
       if (head) {
-        head.style.setProperty('background-color', '#1976d2')
+        head.style.setProperty('background-color', '#647f8e')
       }
-      (card as HTMLElement).style.setProperty('background-color', '#e3f2fd')
+      (card as HTMLElement).style.setProperty('background-color', '#e9eff3')
     })
 
     // 处理天气卡片
     const weatherCards = exportContainer.querySelectorAll('.weather-card')
     weatherCards.forEach((card) => {
-      (card as HTMLElement).style.setProperty('background-color', '#e0f7fa')
+      (card as HTMLElement).style.setProperty('background-color', '#edf3f5')
     })
 
     // 处理预算总计
     const budgetTotal = exportContainer.querySelector('.budget-total')
     if (budgetTotal) {
       const el = budgetTotal as HTMLElement
-      el.style.setProperty('background-color', '#667eea')
+      el.style.setProperty('background-color', '#5f7382')
       el.style.setProperty('color', '#ffffff')
       el.style.setProperty('padding', '20px')
       el.style.setProperty('border-radius', '12px')
@@ -820,7 +820,7 @@ const exportAsPDF = async () => {
     const budgetItems = exportContainer.querySelectorAll('.budget-item')
     budgetItems.forEach((item) => {
       const el = item as HTMLElement
-      el.style.setProperty('background-color', '#f5f7fa')
+      el.style.setProperty('background-color', '#f3f6f8')
       el.style.setProperty('padding', '16px')
       el.style.setProperty('border-radius', '8px')
       el.style.setProperty('margin-bottom', '12px')
@@ -832,7 +832,7 @@ const exportAsPDF = async () => {
     document.body.appendChild(exportContainer)
 
     const canvas = await html2canvas(exportContainer, {
-      backgroundColor: '#f5f7fa',
+      backgroundColor: '#eef2f4',
       scale: 2,
       logging: false,
       useCORS: true,
@@ -928,7 +928,7 @@ const addAttractionMarkers = (AMap: any) => {
       position: [attraction.location.longitude, attraction.location.latitude],
       title: attraction.name,
       label: {
-        content: `<div style="background: #4CAF50; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">${index + 1}</div>`,
+        content: `<div style="background: #5f7382; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">${index + 1}</div>`,
         offset: new AMap.Pixel(0, -30)
       }
     })
@@ -941,7 +941,7 @@ const addAttractionMarkers = (AMap: any) => {
           <p style="margin: 4px 0;"><strong>地址:</strong> ${attraction.address}</p>
           <p style="margin: 4px 0;"><strong>游览时长:</strong> ${attraction.visit_duration}分钟</p>
           <p style="margin: 4px 0;"><strong>描述:</strong> ${attraction.description}</p>
-          <p style="margin: 4px 0; color: #1890ff;"><strong>第${attraction.dayIndex + 1}天 景点${attraction.attrIndex + 1}</strong></p>
+          <p style="margin: 4px 0; color: #5f7382;"><strong>第${attraction.dayIndex + 1}天 景点${attraction.attrIndex + 1}</strong></p>
         </div>
       `,
       offset: new AMap.Pixel(0, -30)
@@ -991,7 +991,7 @@ const drawRoutes = (AMap: any, attractions: any[]) => {
 
     const polyline = new AMap.Polyline({
       path: path,
-      strokeColor: '#1890ff',
+      strokeColor: '#5f7382',
       strokeWeight: 4,
       strokeOpacity: 0.8,
       strokeStyle: 'solid',
@@ -1005,8 +1005,20 @@ const drawRoutes = (AMap: any, attractions: any[]) => {
 
 <style scoped>
 .result-container {
+  --r-bg-start: #e7ecef;
+  --r-bg-end: #d7e0e5;
+  --r-surface: #ffffff;
+  --r-surface-soft: #f5f8fa;
+  --r-primary: #5f7382;
+  --r-primary-strong: #4f6675;
+  --r-accent: #647f8e;
+  --r-border: #d5dee4;
+  --r-text: #2f3f4a;
+  --r-muted: #6f7d88;
+  --r-shadow: rgba(44, 61, 73, 0.14);
+
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(135deg, var(--r-bg-start) 0%, var(--r-bg-end) 100%);
   padding: 40px 20px;
 }
 
@@ -1039,8 +1051,8 @@ const drawRoutes = (AMap: any, attractions: any[]) => {
 
 .side-nav :deep(.ant-menu) {
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  background: white;
+  box-shadow: 0 4px 12px var(--r-shadow);
+  background: var(--r-surface);
 }
 
 .side-nav :deep(.ant-menu-item) {
@@ -1050,12 +1062,12 @@ const drawRoutes = (AMap: any, attractions: any[]) => {
 }
 
 .side-nav :deep(.ant-menu-item-selected) {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--r-primary) 0%, var(--r-primary-strong) 100%);
   color: white;
 }
 
 .side-nav :deep(.ant-menu-item:hover) {
-  background: rgba(102, 126, 234, 0.1);
+  background: rgba(95, 115, 130, 0.12);
 }
 
 .main-content {
@@ -1086,7 +1098,7 @@ const drawRoutes = (AMap: any, attractions: any[]) => {
   position: absolute;
   top: 12px;
   left: 12px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--r-primary) 0%, var(--r-primary-strong) 100%);
   color: white;
   width: 36px;
   height: 36px;
@@ -1095,7 +1107,7 @@ const drawRoutes = (AMap: any, attractions: any[]) => {
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 8px rgba(30, 44, 53, 0.24);
 }
 
 .badge-number {
@@ -1106,31 +1118,31 @@ const drawRoutes = (AMap: any, attractions: any[]) => {
   position: absolute;
   top: 12px;
   right: 12px;
-  background: rgba(255, 77, 79, 0.9);
+  background: rgba(123, 96, 74, 0.9);
   color: white;
   padding: 4px 12px;
   border-radius: 12px;
   font-weight: bold;
   font-size: 14px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 8px rgba(30, 44, 53, 0.24);
 }
 
 /* 天气卡片样式 */
 .weather-card {
-  background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+  background: linear-gradient(135deg, #edf3f5 0%, #e2eaee 100%);
   border: none !important;
   transition: all 0.3s ease;
 }
 
 .weather-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 16px rgba(46, 62, 74, 0.18);
 }
 
 .weather-date {
   font-size: 16px;
   font-weight: bold;
-  color: #00796b;
+  color: var(--r-primary-strong);
   margin-bottom: 12px;
   text-align: center;
 }
@@ -1148,21 +1160,21 @@ const drawRoutes = (AMap: any, attractions: any[]) => {
 
 .weather-label {
   font-size: 12px;
-  color: #666;
+  color: var(--r-muted);
 }
 
 .weather-value {
   font-size: 16px;
   font-weight: 600;
-  color: #00796b;
+  color: var(--r-primary-strong);
 }
 
 .weather-wind {
   margin-top: 8px;
   padding-top: 8px;
-  border-top: 1px solid rgba(0, 121, 107, 0.2);
+  border-top: 1px solid rgba(95, 115, 130, 0.25);
   text-align: center;
-  color: #00796b;
+  color: var(--r-primary-strong);
   font-size: 14px;
 }
 
@@ -1170,7 +1182,7 @@ const drawRoutes = (AMap: any, attractions: any[]) => {
 .back-top-button {
   width: 50px;
   height: 50px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--r-primary) 0%, var(--r-primary-strong) 100%);
   color: white;
   border-radius: 50%;
   display: flex;
@@ -1178,24 +1190,24 @@ const drawRoutes = (AMap: any, attractions: any[]) => {
   justify-content: center;
   font-size: 24px;
   font-weight: bold;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(34, 48, 57, 0.28);
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .back-top-button:hover {
   transform: scale(1.1);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 6px 16px rgba(34, 48, 57, 0.36);
 }
 
 /* 酒店卡片样式 */
 .hotel-card {
-  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  background: linear-gradient(135deg, #e9eff3 0%, #dce7ed 100%);
   border: none !important;
 }
 
 .hotel-card :deep(.ant-card-head) {
-  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  background: linear-gradient(135deg, var(--r-accent) 0%, #57707e 100%);
 }
 
 .hotel-title {
@@ -1241,12 +1253,12 @@ const drawRoutes = (AMap: any, attractions: any[]) => {
 .info-label {
   font-size: 14px;
   font-weight: 600;
-  color: #666;
+  color: var(--r-muted);
 }
 
 .info-value {
   font-size: 15px;
-  color: #333;
+  color: var(--r-text);
   line-height: 1.6;
 }
 
@@ -1265,21 +1277,21 @@ const drawRoutes = (AMap: any, attractions: any[]) => {
 .budget-item {
   text-align: center;
   padding: 12px;
-  background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+  background: linear-gradient(135deg, var(--r-surface-soft) 0%, var(--r-surface) 100%);
   border-radius: 8px;
-  border: 1px solid #e8e8e8;
+  border: 1px solid var(--r-border);
 }
 
 .budget-label {
   font-size: 13px;
-  color: #666;
+  color: var(--r-muted);
   margin-bottom: 8px;
 }
 
 .budget-value {
   font-size: 20px;
   font-weight: 700;
-  color: #1890ff;
+  color: var(--r-primary);
 }
 
 .budget-total {
@@ -1287,7 +1299,7 @@ const drawRoutes = (AMap: any, attractions: any[]) => {
   justify-content: space-between;
   align-items: center;
   padding: 16px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--r-primary) 0%, var(--r-primary-strong) 100%);
   border-radius: 8px;
   color: white;
 }
@@ -1328,20 +1340,20 @@ const drawRoutes = (AMap: any, attractions: any[]) => {
 .day-title {
   font-size: 18px;
   font-weight: 600;
-  color: #333;
+  color: var(--r-text);
 }
 
 .day-date {
   font-size: 14px;
-  color: #999;
+  color: var(--r-muted);
 }
 
 .day-info {
   margin-bottom: 20px;
   padding: 16px;
-  background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+  background: linear-gradient(135deg, var(--r-surface-soft) 0%, var(--r-surface) 100%);
   border-radius: 8px;
-  border: 1px solid #e8e8e8;
+  border: 1px solid var(--r-border);
 }
 
 .info-row {
@@ -1356,30 +1368,30 @@ const drawRoutes = (AMap: any, attractions: any[]) => {
 
 .info-row .label {
   font-weight: 600;
-  color: #666;
+  color: var(--r-muted);
   min-width: 100px;
 }
 
 .info-row .value {
-  color: #333;
+  color: var(--r-text);
   flex: 1;
 }
 
 /* 卡片样式优化 */
 :deep(.ant-card) {
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px var(--r-shadow);
   margin-bottom: 20px;
   transition: all 0.3s ease;
   animation: fadeInUp 0.6s ease-out;
 }
 
 :deep(.ant-card:hover) {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 24px rgba(44, 61, 73, 0.2);
 }
 
 :deep(.ant-card-head) {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--r-primary) 0%, var(--r-primary-strong) 100%);
   color: white !important;
   border-radius: 12px 12px 0 0;
   font-weight: 600;
@@ -1402,19 +1414,19 @@ const drawRoutes = (AMap: any, attractions: any[]) => {
 
 :deep(.ant-collapse-item) {
   margin-bottom: 16px;
-  border: 1px solid #e8e8e8;
+  border: 1px solid var(--r-border);
   border-radius: 12px;
   overflow: hidden;
 }
 
 :deep(.ant-collapse-header) {
-  background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+  background: linear-gradient(135deg, var(--r-surface-soft) 0%, var(--r-surface) 100%);
   padding: 16px 20px !important;
   font-weight: 600;
 }
 
 :deep(.ant-collapse-content) {
-  border-top: 1px solid #e8e8e8;
+  border-top: 1px solid var(--r-border);
 }
 
 :deep(.ant-collapse-content-box) {
@@ -1424,14 +1436,14 @@ const drawRoutes = (AMap: any, attractions: any[]) => {
 /* 统计卡片样式 */
 :deep(.ant-statistic-title) {
   font-size: 14px;
-  color: #666;
+  color: var(--r-muted);
   margin-bottom: 8px;
 }
 
 :deep(.ant-statistic-content) {
   font-size: 24px;
   font-weight: 600;
-  color: #1890ff;
+  color: var(--r-primary);
 }
 
 /* 景点卡片样式 */

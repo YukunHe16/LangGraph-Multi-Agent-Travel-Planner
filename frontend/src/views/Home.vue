@@ -42,7 +42,7 @@
                   class="custom-input"
                 >
                   <template #prefix>
-                    <span style="color: #1890ff;">🏙️</span>
+                    <span style="color: #5f7382;">🏙️</span>
                   </template>
                 </a-input>
               </a-form-item>
@@ -167,7 +167,7 @@
                   <span class="form-label">导出偏好</span>
                 </template>
                 <a-switch v-model:checked="formData.export_to_google_calendar" />
-                <span style="margin-left: 12px; color: #666;">
+                <span style="margin-left: 12px; color: #5d6b76;">
                   生成结果后支持一键导出到 Google Calendar
                 </span>
               </a-form-item>
@@ -220,8 +220,8 @@
               :percent="loadingProgress"
               status="active"
               :stroke-color="{
-                '0%': '#667eea',
-                '100%': '#764ba2',
+                '0%': '#5f7382',
+                '100%': '#7a8f99',
               }"
               :stroke-width="10"
             />
@@ -362,8 +362,20 @@ const handleSubmit = async () => {
 
 <style scoped>
 .home-container {
+  --home-bg-start: #e5eaee;
+  --home-bg-end: #d6dee4;
+  --home-surface: #f8fafb;
+  --home-surface-strong: #ffffff;
+  --home-primary: #5f7382;
+  --home-primary-strong: #4f6675;
+  --home-primary-soft: #edf2f5;
+  --home-border: #d2dce3;
+  --home-text: #2f3f4a;
+  --home-muted: #5d6b76;
+  --home-shadow: rgba(49, 68, 80, 0.18);
+
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--home-bg-start) 0%, var(--home-bg-end) 100%);
   padding: 60px 20px;
   position: relative;
   overflow: hidden;
@@ -383,7 +395,7 @@ const handleSubmit = async () => {
 .circle {
   position: absolute;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(88, 108, 122, 0.12);
   animation: float 20s infinite ease-in-out;
 }
 
@@ -451,17 +463,17 @@ const handleSubmit = async () => {
 .page-title {
   font-size: 56px;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--home-text);
   margin-bottom: 16px;
-  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.35);
   letter-spacing: 2px;
 }
 
 .page-subtitle {
   font-size: 20px;
-  color: rgba(255, 255, 255, 0.95);
+  color: var(--home-muted);
   margin: 0;
-  font-weight: 300;
+  font-weight: 400;
 }
 
 /* 表单卡片 */
@@ -469,26 +481,26 @@ const handleSubmit = async () => {
   max-width: 1400px;
   margin: 0 auto;
   border-radius: 24px;
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 22px 54px var(--home-shadow);
   animation: fadeInUp 0.8s ease-out;
   position: relative;
   z-index: 1;
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(6px);
+  background: rgba(255, 255, 255, 0.94) !important;
 }
 
 /* 表单分区 */
 .form-section {
   margin-bottom: 32px;
   padding: 24px;
-  background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+  background: linear-gradient(135deg, var(--home-surface) 0%, var(--home-surface-strong) 100%);
   border-radius: 16px;
-  border: 1px solid #e8e8e8;
+  border: 1px solid var(--home-border);
   transition: all 0.3s ease;
 }
 
 .form-section:hover {
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+  box-shadow: 0 8px 18px rgba(66, 83, 95, 0.12);
   transform: translateY(-2px);
 }
 
@@ -497,7 +509,7 @@ const handleSubmit = async () => {
   align-items: center;
   margin-bottom: 20px;
   padding-bottom: 12px;
-  border-bottom: 2px solid #667eea;
+  border-bottom: 2px solid rgba(95, 115, 130, 0.45);
 }
 
 .section-icon {
@@ -508,49 +520,49 @@ const handleSubmit = async () => {
 .section-title {
   font-size: 18px;
   font-weight: 600;
-  color: #333;
+  color: var(--home-text);
 }
 
 /* 表单标签 */
 .form-label {
   font-size: 15px;
   font-weight: 500;
-  color: #555;
+  color: var(--home-muted);
 }
 
 /* 自定义输入框 */
 .custom-input :deep(.ant-input),
 .custom-input :deep(.ant-picker) {
   border-radius: 12px;
-  border: 2px solid #e8e8e8;
+  border: 2px solid var(--home-border);
   transition: all 0.3s ease;
 }
 
 .custom-input :deep(.ant-input:hover),
 .custom-input :deep(.ant-picker:hover) {
-  border-color: #667eea;
+  border-color: var(--home-primary);
 }
 
 .custom-input :deep(.ant-input:focus),
 .custom-input :deep(.ant-picker-focused) {
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: var(--home-primary);
+  box-shadow: 0 0 0 3px rgba(95, 115, 130, 0.14);
 }
 
 /* 自定义选择框 */
 .custom-select :deep(.ant-select-selector) {
   border-radius: 12px !important;
-  border: 2px solid #e8e8e8 !important;
+  border: 2px solid var(--home-border) !important;
   transition: all 0.3s ease;
 }
 
 .custom-select:hover :deep(.ant-select-selector) {
-  border-color: #667eea !important;
+  border-color: var(--home-primary) !important;
 }
 
 .custom-select :deep(.ant-select-focused .ant-select-selector) {
-  border-color: #667eea !important;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+  border-color: var(--home-primary) !important;
+  box-shadow: 0 0 0 3px rgba(95, 115, 130, 0.14) !important;
 }
 
 /* 天数显示 - 紧凑版 */
@@ -560,7 +572,7 @@ const handleSubmit = async () => {
   justify-content: center;
   height: 40px;
   padding: 8px 16px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--home-primary) 0%, var(--home-primary-strong) 100%);
   border-radius: 12px;
   color: white;
 }
@@ -592,38 +604,38 @@ const handleSubmit = async () => {
 .preference-tag :deep(.ant-checkbox-wrapper) {
   margin: 0 !important;
   padding: 8px 16px;
-  border: 2px solid #e8e8e8;
+  border: 2px solid var(--home-border);
   border-radius: 20px;
   transition: all 0.3s ease;
-  background: white;
+  background: var(--home-surface-strong);
   font-size: 14px;
 }
 
 .preference-tag :deep(.ant-checkbox-wrapper:hover) {
-  border-color: #667eea;
-  background: #f5f7ff;
+  border-color: var(--home-primary);
+  background: var(--home-primary-soft);
 }
 
 .preference-tag :deep(.ant-checkbox-wrapper-checked) {
-  border-color: #667eea;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: var(--home-primary);
+  background: linear-gradient(135deg, var(--home-primary) 0%, var(--home-primary-strong) 100%);
   color: white;
 }
 
 /* 自定义文本域 */
 .custom-textarea :deep(.ant-input) {
   border-radius: 12px;
-  border: 2px solid #e8e8e8;
+  border: 2px solid var(--home-border);
   transition: all 0.3s ease;
 }
 
 .custom-textarea :deep(.ant-input:hover) {
-  border-color: #667eea;
+  border-color: var(--home-primary);
 }
 
 .custom-textarea :deep(.ant-input:focus) {
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: var(--home-primary);
+  box-shadow: 0 0 0 3px rgba(95, 115, 130, 0.14);
 }
 
 /* 提交按钮 */
@@ -632,15 +644,15 @@ const handleSubmit = async () => {
   border-radius: 28px;
   font-size: 18px;
   font-weight: 600;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--home-primary) 0%, var(--home-primary-strong) 100%);
   border: none;
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 8px 24px rgba(61, 78, 91, 0.34);
   transition: all 0.3s ease;
 }
 
 .submit-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(102, 126, 234, 0.5);
+  box-shadow: 0 12px 32px rgba(61, 78, 91, 0.42);
 }
 
 .submit-button:active {
@@ -656,14 +668,14 @@ const handleSubmit = async () => {
 .loading-container {
   text-align: center;
   padding: 24px;
-  background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+  background: linear-gradient(135deg, var(--home-surface) 0%, var(--home-surface-strong) 100%);
   border-radius: 16px;
-  border: 2px dashed #667eea;
+  border: 2px dashed var(--home-primary);
 }
 
 .loading-status {
   margin-top: 16px;
-  color: #667eea;
+  color: var(--home-primary-strong);
   font-size: 18px;
   font-weight: 500;
 }
